@@ -17,8 +17,13 @@ import random
 import collections, numpy
 from matplotlib.pyplot import pie, axis, show
 
-folder="MCresults"
-inputFile=folder+"/part_new_sigma_25_nocut"
+flag3TeV=True
+
+if (not flag3TeV):
+    inputFile="DigFiles/1.5TeV"
+else:
+    inputFile="DigFiles/Part3TeV.dump"
+#inputFile=folder+"/part_new_sigma_25_nocut"
 
 nbins=50
 nbinsH=200
@@ -50,14 +55,27 @@ n_elpos=n_el+n_pos
 n_mu=n_mup+n_mum
 
 
+# ## Print Particle Numbers
+
 # In[4]:
+
+
+print('N photons= ', "{:.2e}".format(n_ph), '\nn positrons= ', "{:.2e}".format(n_pos), '\nn electrons= ', "{:.2e}".format(n_el), '\nn protons= ', "{:.2e}".format(n_pr), '\nn neutrons= ', "{:.2e}".format(n_neu), '\nn mum= ', "{:.2e}".format(n_mum), '\nn mup= ', "{:.2e}".format(n_mup))
+   
+   
+
+
+# In[5]:
 
 
 def plot1D(ax,x,label="",xlabel="x",ylabel="y",log=False,col="r", weights=None,bins=None,rng=None, numPart=None):
     ax.set_xlabel(xlabel,fontsize='14')
     ax.set_ylabel(ylabel,fontsize='14')
     if numPart:
-        ax.set_title('N of particles '+ str.format('{:.2e}',numPart),fontsize=12)
+        if numPart==0:
+            ax.set_title('NO PARTS ')
+        else:
+            ax.set_title('N of particles '+ str.format('{:.2e}',numPart),fontsize=12)
     if log:
         ax.set_ylim(auto=True)
     ax.hist(x,log=log,histtype='step', label=label, color=col, bins=bins, range=rng, weights=weights)
@@ -65,19 +83,11 @@ def plot1D(ax,x,label="",xlabel="x",ylabel="y",log=False,col="r", weights=None,b
     ax.grid(True)
     return ax
 
-
-# In[6]:
-
-
 def getMomentum(part, absFlag=False):
     if abs:
         return numpy.sqrt(dataset[abs(dataset["PDGcode"])==part]["PX"]**2+dataset[abs(dataset["PDGcode"])==part]["PY"]**2+dataset[abs(dataset["PDGcode"])==part]["PZ"]**2)
     else:
         return numpy.sqrt(dataset[dataset["PDGcode"]==part]["PX"]**2+dataset[dataset["PDGcode"]==part]["PY"]**2+dataset[dataset["PDGcode"]==part]["PZ"]**2)
-
-
-# In[10]:
-
 
 def drawPie(var, figName):
     fig=plt.figure(figsize=(5,5))
@@ -88,10 +98,6 @@ def drawPie(var, figName):
     pie(sums, autopct='%1.1f%%',labels=sums.index,colors=colors)
     figname=figName
     pl.savefig(figname)
-
-
-# In[16]:
-
 
 def scatter_histo(x, y, ax, ax_histx, ax_histy, weights=None):
     ax_histx.tick_params(axis="x", labelbottom=False)
@@ -115,7 +121,7 @@ rect_histy = [left + width + spacing, bottom, 0.2, height]
 
 # ### All relevant particles
 
-# In[5]:
+# In[25]:
 
 
 fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(15,3), sharey=False)
@@ -133,15 +139,18 @@ pl.savefig(figname)
 
 # ### Photons and e+/e-
 
-# In[7]:
+# In[26]:
 
 
 fig=plt.figure(figsize=(8,8))
-plot1D(fig.gca(), getMomentum(22), log=True, weights=dataset[dataset["PDGcode"]==22]["Weight"], bins=200, rng=(0,0.2), label="$\gamma$", xlabel='p (GeV/c)', ylabel='Arb. Units')
-plot1D(fig.gca(), getMomentum(11, absFlag=True), log=True, weights=dataset[abs(dataset["PDGcode"])==11]["Weight"], bins=200, rng=(0,0.2), label="$e^-~/~e^+$", xlabel='p (GeV/c)', ylabel='Arb. Units', col="black")
+#plot1D(fig.gca(), getMomentum(22), log=True, weights=dataset[dataset["PDGcode"]==22]["Weight"], bins=200, rng=(0,0.2), label="$\gamma$", xlabel='p (GeV/c)', ylabel='Arb. Units')
+#plot1D(fig.gca(), getMomentum(11, absFlag=True), log=True, weights=dataset[abs(dataset["PDGcode"])==11]["Weight"], bins=200, rng=(0,0.2), label="$e^-~/~e^+$", xlabel='p (GeV/c)', ylabel='Arb. Units', col="black")
 
-plt.ylim((1e3,2e9))
-plt.xlim((0,0.2))
+plot1D(fig.gca(), getMomentum(22), log=True, weights=dataset[dataset["PDGcode"]==22]["Weight"], bins=200, label="$\gamma$", xlabel='p (GeV/c)', ylabel='Arb. Units')
+plot1D(fig.gca(), getMomentum(11, absFlag=True), log=True, weights=dataset[abs(dataset["PDGcode"])==11]["Weight"], bins=200, label="$e^-~/~e^+$", xlabel='p (GeV/c)', ylabel='Arb. Units', col="black")
+
+#plt.ylim((1e3,2e9))
+#plt.xlim((0,0.2))
 plt.legend()
 figname="BIB_EneEGamma"
 pl.savefig(figname)
