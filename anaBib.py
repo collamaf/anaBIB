@@ -65,7 +65,7 @@ print('N photons= ', "{:.2e}".format(n_ph), '\nn positrons= ', "{:.2e}".format(n
    
 
 
-# In[5]:
+# In[37]:
 
 
 def plot1D(ax,x,label="",xlabel="x",ylabel="y",log=False,col="r", weights=None,bins=None,rng=None, numPart=None):
@@ -75,10 +75,12 @@ def plot1D(ax,x,label="",xlabel="x",ylabel="y",log=False,col="r", weights=None,b
         if numPart==0:
             ax.set_title('NO PARTS ')
         else:
+#            ax.set_title('N of particles '+ str.format('{:.2e}',numPart)+"\n Mean "+ str.format('{:.2e} MeV',x.mean()*1e3),fontsize=12)
             ax.set_title('N of particles '+ str.format('{:.2e}',numPart),fontsize=12)
+
     if log:
         ax.set_ylim(auto=True)
-    ax.hist(x,log=log,histtype='step', label=label, color=col, bins=bins, range=rng, weights=weights)
+    ax.hist(x,log=log,histtype='step', label=label+ str.format(' mean= {:.2e}',x.mean()), color=col, bins=bins, range=rng, weights=weights)
     ax.legend(loc= "best")
     ax.grid(True)
     return ax
@@ -121,7 +123,7 @@ rect_histy = [left + width + spacing, bottom, 0.2, height]
 
 # ### All relevant particles
 
-# In[25]:
+# In[38]:
 
 
 fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(15,3), sharey=False)
@@ -139,7 +141,7 @@ pl.savefig(figname)
 
 # ### Photons and e+/e-
 
-# In[26]:
+# In[39]:
 
 
 fig=plt.figure(figsize=(8,8))
@@ -158,7 +160,7 @@ pl.savefig(figname)
 
 # ### Hadrons
 
-# In[27]:
+# In[40]:
 
 
 fig=plt.figure(figsize=(8,8))
@@ -174,7 +176,7 @@ pl.savefig(figname)
 
 # ## Plot Time Distributions
 
-# In[9]:
+# In[41]:
 
 
 fig=plt.figure(figsize=(8,8))
@@ -195,13 +197,13 @@ pl.savefig(figname)
 
 # ## Plot Pie Charts
 
-# In[11]:
+# In[42]:
 
 
 drawPie("Elem", "BIB_PieDet")
 
 
-# In[12]:
+# In[43]:
 
 
 drawPie("Elem2", "BIB_PieFirstInt")
@@ -211,7 +213,7 @@ drawPie("Elem2", "BIB_PieFirstInt")
 
 # ### Global
 
-# In[13]:
+# In[44]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -224,7 +226,7 @@ pl.savefig(figname)
 
 # ### Per Particle
 
-# In[14]:
+# In[45]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -242,7 +244,7 @@ figname="BIB_Mudec2"
 pl.savefig(figname)
 
 
-# In[15]:
+# In[46]:
 
 
 fig=plt.figure(figsize=(9,3))
