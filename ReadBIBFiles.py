@@ -1,18 +1,28 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[6]:
 
 
 import glob
-path = "FLUKAresults/3TeV/prova3tev*"
+import argparse
+parser = argparse.ArgumentParser(description='Read data path')
+parser.add_argument('--dataPath', type=str, help='path')
+#path = "FLUKAresults/3TeV/prova3tev*
+args = parser.parse_args()
+
+#path = "FLUKAresults/1.5TeV/*"
+if args.dataPath:
+    path=args.dataPath
+else:
+    path = "FLUKAresults/1.5TeV/*"
 
 
-# In[2]:
+# In[3]:
 
 
 numMuonsTot=0
-for filename in glob.glob(path):
+for filename in sorted(glob.glob(path)):
     with open(filename, 'r') as f:
         print("Aperto File", filename)
         for line in f:
@@ -29,11 +39,11 @@ for filename in glob.glob(path):
 print("Eventi TOT=", numMuonsTot)
 
 
-# In[3]:
+# In[4]:
 
 
-with open("OUT","w") as fOut:
-    for filename in glob.glob(path):
+with open("OUT1p5","w") as fOut:
+    for filename in sorted(glob.glob(path)):
         with open(filename, 'r') as f:
             print("Aperto File", filename)
             for line in f:
