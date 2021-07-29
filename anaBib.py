@@ -28,8 +28,14 @@ if (not flagCFR):
         inputFile="DigFiles/Part3TeV.dump"
 else:
     inputFileA="DigFiles/Part1.5TeV.dump"
+    labelA="1p5TeV"
 #    inputFileB="DigFiles/Part1.5TeV.mineNotOrd"
-    inputFileB="DigFiles/Part3TeV.dump"
+#    inputFileB="DigFiles/Part3TeV.dump"
+    inputFileB="DigFiles/Part1.5TeV_200.dump"
+#    labelB="3TeV"
+    labelB="1p5TeV_200"
+
+
         #inputFile=folder+"/part_new_sigma_25_nocut"
         
 listChargedHadrons=[321, 311, 211, 2212, 3122, 3112, -321, -311, -211, -2212, -3122, -3112]
@@ -182,10 +188,10 @@ nBinZB=int(((datasetB["PosZmu"]/100).max()-(datasetB["PosZmu"]/100).min())/bw)
 fig, axs = plt.subplots(nrows=3, ncols=1, figsize=(16,14))
 
 
-plot1D(axs[0],dataset["PosZmu"]/100, weights=dataset["Weight"],bins=nBinZ,col='tab:blue', plotTitle="Muon Decay Z", label="1.5TeV", xlabel='', ylabel='Arb. Units' )
-plot1D(axs[0],datasetB["PosZmu"]/100, weights=datasetB["Weight"],bins=nBinZB,col='tab:orange', plotTitle="Muon Decay Z", label="3TeV", xlabel='', ylabel='Arb. Units' )
-axs[1].hist(dataset["PosZmu"]/100, bins=nBinZ, cumulative=1,histtype='step', label="cum 1.5TeV", density=True)
-axs[1].hist(datasetB["PosZmu"]/100, bins=nBinZB, cumulative=1,histtype='step', label="cum 3TeV", density=True)
+plot1D(axs[0],dataset["PosZmu"]/100, weights=dataset["Weight"],bins=nBinZ,col='tab:blue', plotTitle="Muon Decay Z", label=labelA, xlabel='', ylabel='Arb. Units' )
+plot1D(axs[0],datasetB["PosZmu"]/100, weights=datasetB["Weight"],bins=nBinZB,col='tab:orange', plotTitle="Muon Decay Z", label=labelB, xlabel='', ylabel='Arb. Units' )
+axs[1].hist(dataset["PosZmu"]/100, bins=nBinZ, cumulative=1,histtype='step', label="cum "+labelA, density=True)
+axs[1].hist(datasetB["PosZmu"]/100, bins=nBinZB, cumulative=1,histtype='step', label="cum "+labelB, density=True)
 
 axs[0].axis(ymin=100, ymax=1e9)
 axs[1].grid(True, which="both")
@@ -196,10 +202,10 @@ axs[1].legend(loc= "best", fontsize='x-small')
 
 axs2b=axs[2].twinx()
 
-plot1D(axs[2],dataset["PosZmu"]/100, weights=dataset["Weight"],bins=nBinZ,col='tab:blue', plotTitle="Muon Decay Z", label="1.5TeV", xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
-plot1D(axs[2],datasetB["PosZmu"]/100, weights=datasetB["Weight"],bins=nBinZB,col='tab:orange', plotTitle="Muon Decay Z", label="3TeV", xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
-histoCumA=axs2b.hist(dataset["PosZmu"]/100, bins=nBinZ, cumulative=1,histtype='step', label="cum 1.5TeV", density=True, linestyle=':')
-histoCumB=axs2b.hist(datasetB["PosZmu"]/100, bins=nBinZB, cumulative=1,histtype='step', label="cum 3TeV", density=True, linestyle=':')
+plot1D(axs[2],dataset["PosZmu"]/100, weights=dataset["Weight"],bins=nBinZ,col='tab:blue', plotTitle="Muon Decay Z", label=labelA, xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
+plot1D(axs[2],datasetB["PosZmu"]/100, weights=datasetB["Weight"],bins=nBinZB,col='tab:orange', plotTitle="Muon Decay Z", label=labelB, xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
+histoCumA=axs2b.hist(dataset["PosZmu"]/100, bins=nBinZ, cumulative=1,histtype='step', label="cum "+labelA, density=True, linestyle=':')
+histoCumB=axs2b.hist(datasetB["PosZmu"]/100, bins=nBinZB, cumulative=1,histtype='step', label="cum "+labelB, density=True, linestyle=':')
 
 cut95valA=histoCumA[1][np.argmax(histoCumA[0]>0.95)]
 cut95valB=histoCumB[1][np.argmax(histoCumB[0]>0.95)]
@@ -324,7 +330,7 @@ for i, v in enumerate(entriesA):
 #fig.set_size_inches(18.5, 10.5)
 
 axs[1].bar(range(len(interestingParticles)), entriesB, align='center', log=True, color="tab:orange")
-axs[1].set_title('3TeV')
+axs[1].set_title(labelB)
 plt.sca(axs[1])
 #plt.xticks(range(len(dataset["PDGcode"].value_counts())), dataset["PDGcode"].value_counts().index.values, size='small')
 plt.xticks(range(len(interestingParticles)), particleNamesList, size='large')
@@ -337,9 +343,9 @@ for i, v in enumerate(entriesB):
 #fig.set_size_inches(18.5, 10.5)
 
 if True:
-    axs[2].bar(range(len(interestingParticles)), entriesA, align='center', log=True, color="tab:blue", label="1.5TeV")
-    axs[2].bar(range(len(interestingParticles)), entriesB, alpha=0.5, align='center', log=True, color="tab:orange",label="3TeV")
-    axs[2].set_title('1.5-3TeV cfr')
+    axs[2].bar(range(len(interestingParticles)), entriesA, align='center', log=True, color="tab:blue", label=labelA)
+    axs[2].bar(range(len(interestingParticles)), entriesB, alpha=0.5, align='center', log=True, color="tab:orange",label=labelB)
+    axs[2].set_title('Comparison')
     plt.sca(axs[2])
     #plt.xticks(range(len(dataset["PDGcode"].value_counts())), dataset["PDGcode"].value_counts().index.values, size='small')
     plt.xticks(range(len(interestingParticles)), particleNamesList, size='large')
@@ -360,6 +366,14 @@ plt.show()
 # In[11]:
 
 
+if True:
+    timeOffset=3600
+    datasetB["Time"]=datasetB["Time"]+timeOffset
+
+
+# In[12]:
+
+
 data_ph=dataset[dataset["PDGcode"]==22]
 data_pos=dataset[dataset["PDGcode"]==-11]
 data_el=dataset[dataset["PDGcode"]==11]
@@ -372,7 +386,7 @@ data_mupmum=dataset[(dataset["PDGcode"]==-13)|(dataset["PDGcode"]==13)]
 data_chh=dataset[(dataset["PDGcode"]).isin(listChargedHadrons)]
 
 
-# In[12]:
+# In[13]:
 
 
 data_phB=datasetB[datasetB["PDGcode"]==22]
@@ -387,7 +401,7 @@ data_mupmumB=datasetB[(datasetB["PDGcode"]==-13)|(datasetB["PDGcode"]==13)]
 data_chhB=datasetB[(datasetB["PDGcode"]).isin(listChargedHadrons)]
 
 
-# In[13]:
+# In[14]:
 
 
 n_ph= sum(data_ph["Weight"])
@@ -402,7 +416,7 @@ n_elpos=n_el+n_pos
 n_mu=n_mup+n_mum
 
 
-# In[14]:
+# In[15]:
 
 
 n_phB= sum(data_phB["Weight"])
@@ -419,7 +433,7 @@ n_muB=n_mupB+n_mumB
 
 # ## Print Particle Numbers
 
-# In[15]:
+# In[16]:
 
 
 print('N photons= ', "{:.2e}".format(n_ph), '\nn positrons= ', "{:.2e}".format(n_pos), '\nn electrons= ', "{:.2e}".format(n_el), '\nn protons= ', "{:.2e}".format(n_pr), '\nn neutrons= ', "{:.2e}".format(n_neu), '\nn ch hadr= ', "{:.2e}".format(n_chh), '\nn mum= ', "{:.2e}".format(n_mum), '\nn mup= ', "{:.2e}".format(n_mup))
@@ -431,21 +445,21 @@ print('N photons= ', "{:.2e}".format(n_phB), '\nn positrons= ', "{:.2e}".format(
 
 # ### All relevant particles
 
-# In[16]:
+# In[17]:
 
 
 fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(22,5), sharey=False)
-plot1D(axs[0],data_ph["KinE"], plotTitle="$\gamma$", label= "1.5TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_ph["Weight"], numPart=n_ph)
-plot1D(axs[1],data_neu["KinE"], plotTitle="n.", label= "1.5TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_neu["Weight"], numPart=n_neu)
-plot1D(axs[2],data_elpos["KinE"], plotTitle="$e^-~/~e^+$", label= "1.5TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_elpos["Weight"], numPart=n_elpos)
-plot1D(axs[3],data_chh["KinE"], plotTitle="ch. had.", label= "1.5TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_chh["Weight"], numPart=n_chh)
-plot1D(axs[4],data_mupmum["KinE"], plotTitle="$\mu^-/\mu^+$", label= "1.5TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_mupmum["Weight"], numPart=n_mu)
+plot1D(axs[0],data_ph["KinE"], plotTitle="$\gamma$", label= labelA,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_ph["Weight"], numPart=n_ph)
+plot1D(axs[1],data_neu["KinE"], plotTitle="n.", label= labelA,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_neu["Weight"], numPart=n_neu)
+plot1D(axs[2],data_elpos["KinE"], plotTitle="$e^-~/~e^+$", label= labelA,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_elpos["Weight"], numPart=n_elpos)
+plot1D(axs[3],data_chh["KinE"], plotTitle="ch. had.", label= labelA,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_chh["Weight"], numPart=n_chh)
+plot1D(axs[4],data_mupmum["KinE"], plotTitle="$\mu^-/\mu^+$", label= labelA,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_mupmum["Weight"], numPart=n_mu)
 
-plot1D(axs[0],data_phB["KinE"], plotTitle="$\gamma$", label= "3TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_phB["Weight"], numPart=n_phB, col="b")
-plot1D(axs[1],data_neuB["KinE"], plotTitle="n.", label= "3TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_neuB["Weight"], numPart=n_neuB, col="b")
-plot1D(axs[2],data_elposB["KinE"], plotTitle="$e^-~/~e^+$", label= "3TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_elposB["Weight"], numPart=n_elposB, col="b")
-plot1D(axs[3],data_chhB["KinE"], plotTitle="ch. had", label= "3TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_chhB["Weight"], numPart=n_chhB, col="b")
-plot1D(axs[4],data_mupmumB["KinE"], plotTitle="$\mu^-/\mu^+$", label= "3TeV",xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_mupmumB["Weight"], numPart=n_muB, col="b")
+plot1D(axs[0],data_phB["KinE"], plotTitle="$\gamma$", label= labelB,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_phB["Weight"], numPart=n_phB, col="b")
+plot1D(axs[1],data_neuB["KinE"], plotTitle="n.", label= labelB,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_neuB["Weight"], numPart=n_neuB, col="b")
+plot1D(axs[2],data_elposB["KinE"], plotTitle="$e^-~/~e^+$", label= labelB,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_elposB["Weight"], numPart=n_elposB, col="b")
+plot1D(axs[3],data_chhB["KinE"], plotTitle="ch. had", label= labelB,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_chhB["Weight"], numPart=n_chhB, col="b")
+plot1D(axs[4],data_mupmumB["KinE"], plotTitle="$\mu^-/\mu^+$", label= labelB,xlabel="$E_{kin}$ [GeV]",ylabel="Arb. Units", bins= nbins, weights=data_mupmumB["Weight"], numPart=n_muB, col="b")
 
 fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.9, bottom= 0.2)
 
@@ -455,20 +469,20 @@ pl.savefig(figname)
 
 # ### Photons and e+/e-
 
-# In[17]:
+# In[18]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(24,8), sharey=False)
 
 plot1D(ax[0], getMomentum(dataset, 22), weights=data_ph["Weight"], bins=200, label="$\gamma$", xlabel='p (GeV/c)', ylabel='Arb. Units', numPart=n_ph)
-plot1D(ax[0], getMomentum(dataset, [-11,11]), weights=data_elpos["Weight"], bins=200, plotTitle="E.M. Components 1.5TeV", label="$e^-~/~e^+$", xlabel='p (GeV/c)', ylabel='Arb. Units', col="black", numPart=n_elpos)
+plot1D(ax[0], getMomentum(dataset, [-11,11]), weights=data_elpos["Weight"], bins=200, plotTitle="E.M. Components "+labelA, label="$e^-~/~e^+$", xlabel='p (GeV/c)', ylabel='Arb. Units', col="black", numPart=n_elpos)
 
 plot1D(ax[1], getMomentum(datasetB, 22), weights=data_phB["Weight"], bins=200, label="$\gamma$", xlabel='p (GeV/c)', ylabel='Arb. Units', numPart=n_phB, col="magenta")
-plot1D(ax[1], getMomentum(datasetB, [-11,11]), weights=data_elposB["Weight"], bins=200, plotTitle="E.M. Components 3TeV", label="$e^-~/~e^+$", xlabel='p (GeV/c)', ylabel='Arb. Units', col="gray", numPart=n_elposB)
+plot1D(ax[1], getMomentum(datasetB, [-11,11]), weights=data_elposB["Weight"], bins=200, plotTitle="E.M. Components "+labelB, label="$e^-~/~e^+$", xlabel='p (GeV/c)', ylabel='Arb. Units', col="gray", numPart=n_elposB)
 
-plot1D(ax[2], getMomentum(dataset, 22), weights=data_ph["Weight"], bins=200, label="$\gamma$ 1.5TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', numPart=n_ph)
+plot1D(ax[2], getMomentum(dataset, 22), weights=data_ph["Weight"], bins=200, label="$\gamma$ "+labelA, xlabel='p (GeV/c)', ylabel='Arb. Units', numPart=n_ph)
 plot1D(ax[2], getMomentum(dataset, [-11,11]), weights=data_elpos["Weight"], bins=200, plotTitle="E.M. Components", label="$e^-~/~e^+$ 1.5TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', col="black", numPart=n_elpos)
-plot1D(ax[2], getMomentum(datasetB, 22), weights=data_phB["Weight"], bins=200, label="$\gamma$ 3TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', numPart=n_phB, col="magenta")
+plot1D(ax[2], getMomentum(datasetB, 22), weights=data_phB["Weight"], bins=200, label="$\gamma$ "+labelB, xlabel='p (GeV/c)', ylabel='Arb. Units', numPart=n_phB, col="magenta")
 plot1D(ax[2], getMomentum(datasetB, [-11,11]), weights=data_elposB["Weight"], bins=200, plotTitle="E.M. Components CFR", label="$e^-~/~e^+$ 1.5TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', col="gray", numPart=n_elposB)
 
 #plt.ylim((1e3,2e9))
@@ -483,21 +497,21 @@ pl.savefig(figname)
 
 # ### Hadrons
 
-# In[18]:
+# In[19]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(24,8), sharey=False)
 
 plot1D(ax[0], getMomentum(dataset, listChargedHadrons), weights=data_chh["Weight"], bins=nbins, rng=(0,1), label="ch. had", xlabel='p (GeV/c)', ylabel='Arb. Units', col="m", numPart=n_pr)
-plot1D(ax[0], getMomentum(dataset, [2112]), weights=data_neu["Weight"], bins=nbinsH, rng=(0,1), plotTitle="Hadrons 1.5TeV", label="neutrons", xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:blue",numPart=n_neu)
+plot1D(ax[0], getMomentum(dataset, [2112]), weights=data_neu["Weight"], bins=nbinsH, rng=(0,1), plotTitle="Hadrons "+labelA, label="neutrons", xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:blue",numPart=n_neu)
 
 plot1D(ax[1], getMomentum(datasetB, listChargedHadrons), weights=data_chhB["Weight"], bins=nbins, rng=(0,1), label="ch. had", xlabel='p (GeV/c)', ylabel='Arb. Units', col="hotpink", numPart=n_prB)
-plot1D(ax[1], getMomentum(datasetB, [2112]), weights=data_neuB["Weight"], bins=nbinsH, rng=(0,1), plotTitle="Hadrons 3TeV", label="neutrons", xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:cyan",numPart=n_neuB)
+plot1D(ax[1], getMomentum(datasetB, [2112]), weights=data_neuB["Weight"], bins=nbinsH, rng=(0,1), plotTitle="Hadrons "+labelB, label="neutrons", xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:cyan",numPart=n_neuB)
 
-plot1D(ax[2], getMomentum(dataset, listChargedHadrons), weights=data_chh["Weight"], bins=nbins, rng=(0,1), label="ch. had 1.5TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', col="m", numPart=n_pr)
-plot1D(ax[2], getMomentum(dataset, [2112]), weights=data_neu["Weight"], bins=nbinsH, rng=(0,1), label="n 1.5TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:blue",numPart=n_neu)
-plot1D(ax[2], getMomentum(datasetB, listChargedHadrons), weights=data_chhB["Weight"], bins=nbins, rng=(0,1), label="ch. had 3TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', col="hotpink", numPart=n_prB)
-plot1D(ax[2], getMomentum(datasetB, [2112]), weights=data_neuB["Weight"], bins=nbinsH, rng=(0,1), plotTitle="Hadrons CFR", label="n 3TeV", xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:cyan",numPart=n_neuB)
+plot1D(ax[2], getMomentum(dataset, listChargedHadrons), weights=data_chh["Weight"], bins=nbins, rng=(0,1), label="ch. had "+labelA, xlabel='p (GeV/c)', ylabel='Arb. Units', col="m", numPart=n_pr)
+plot1D(ax[2], getMomentum(dataset, [2112]), weights=data_neu["Weight"], bins=nbinsH, rng=(0,1), label="n "+labelA, xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:blue",numPart=n_neu)
+plot1D(ax[2], getMomentum(datasetB, listChargedHadrons), weights=data_chhB["Weight"], bins=nbins, rng=(0,1), label="ch. had "+labelB, xlabel='p (GeV/c)', ylabel='Arb. Units', col="hotpink", numPart=n_prB)
+plot1D(ax[2], getMomentum(datasetB, [2112]), weights=data_neuB["Weight"], bins=nbinsH, rng=(0,1), plotTitle="Hadrons CFR", label="n "+labelB, xlabel='p (GeV/c)', ylabel='Arb. Units', col="tab:cyan",numPart=n_neuB)
 
 ax[0].axis(ymin=1e1, ymax=3e7)
 ax[1].axis(ymin=1e1, ymax=3e7)
@@ -512,7 +526,7 @@ pl.savefig(figname)
 
 # ## Plot Time Distributions
 
-# In[19]:
+# In[20]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(24,8), sharey=False)
@@ -521,19 +535,19 @@ plot1D(ax[0], data_ph["Time"], weights=data_ph["Weight"],rng=(-30,100), bins=nbi
 plot1D(ax[0], data_elpos["Time"], weights=data_elpos["Weight"],rng=(-30,100), bins=nbinsH, col="black", label="e+e-", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[0], data_chh["Time"], weights=data_chh["Weight"],rng=(-30,100), bins=nbinsH, col="m", label="ch. had", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[0], data_neu["Time"], weights=data_neu["Weight"],rng=(-30,100), bins=nbinsH, col="blue", label="neutron", xlabel="T [ns]", ylabel="Arb. Units")
-plot1D(ax[0], data_mupmum["Time"], weights=data_mupmum["Weight"],rng=(-30,100), bins=nbinsH, col="chartreuse", label="mu+ mu-", xlabel="T [ns]", ylabel="Arb. Units", plotTitle="Time Distribution 1.5TeV")
+plot1D(ax[0], data_mupmum["Time"], weights=data_mupmum["Weight"],rng=(-30,100), bins=nbinsH, col="chartreuse", label="mu+ mu-", xlabel="T [ns]", ylabel="Arb. Units", plotTitle="Time Distribution "+labelA)
 
 plot1D(ax[1], data_phB["Time"], weights=data_phB["Weight"],rng=(-30,100), bins=nbinsH, col="salmon", label="Photon", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[1], data_elposB["Time"], weights=data_elposB["Weight"],rng=(-30,100), bins=nbinsH, col="dimgrey", label="e+e-", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[1], data_chhB["Time"], weights=data_chhB["Weight"],rng=(-30,100), bins=nbinsH, col="hotpink", label="ch. had", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[1], data_neuB["Time"], weights=data_neuB["Weight"],rng=(-30,100), bins=nbinsH, col="cyan", label="neutron", xlabel="T [ns]", ylabel="Arb. Units")
-plot1D(ax[1], data_mupmumB["Time"], weights=data_mupmumB["Weight"],rng=(-30,100), bins=nbinsH, col="springgreen", label="mu+ mu-", xlabel="T [ns]", ylabel="Arb. Units", plotTitle="Time Distribution 3TeV")
+plot1D(ax[1], data_mupmumB["Time"], weights=data_mupmumB["Weight"],rng=(-30,100), bins=nbinsH, col="springgreen", label="mu+ mu-", xlabel="T [ns]", ylabel="Arb. Units", plotTitle="Time Distribution "+labelB)
 
 plot1D(ax[2], data_ph["Time"], weights=data_ph["Weight"],rng=(-30,100), bins=nbinsH, col="r", label="Photon", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[2], data_elpos["Time"], weights=data_elpos["Weight"],rng=(-30,100), bins=nbinsH, col="black", label="e+e-", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[2], data_chh["Time"], weights=data_chh["Weight"],rng=(-30,100), bins=nbinsH, col="m", label="ch. had", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[2], data_neu["Time"], weights=data_neu["Weight"],rng=(-30,100), bins=nbinsH, col="blue", label="neutron", xlabel="T [ns]", ylabel="Arb. Units")
-plot1D(ax[2], data_mupmum["Time"], weights=data_mupmum["Weight"],rng=(-30,100), bins=nbinsH, col="chartreuse", label="mu+ mu-", xlabel="T [ns]", ylabel="Arb. Units", plotTitle="Time Distribution 1.5TeV")
+plot1D(ax[2], data_mupmum["Time"], weights=data_mupmum["Weight"],rng=(-30,100), bins=nbinsH, col="chartreuse", label="mu+ mu-", xlabel="T [ns]", ylabel="Arb. Units", plotTitle="Time Distribution "+labelA)
 
 plot1D(ax[2], data_phB["Time"], weights=data_phB["Weight"],rng=(-30,100), bins=nbinsH, col="salmon", label="Photon", xlabel="T [ns]", ylabel="Arb. Units")
 plot1D(ax[2], data_elposB["Time"], weights=data_elposB["Weight"],rng=(-30,100), bins=nbinsH, col="dimgrey", label="e+e-", xlabel="T [ns]", ylabel="Arb. Units")
@@ -560,31 +574,31 @@ pl.savefig(figname)
 
 # ## Plot Pie Charts
 
-# In[20]:
-
-
-drawPie("Elem", "BIB_PieDet", title="1p5TeV")
-drawPie("Elem", "BIB_PieDet", bFlag=True, title="3TeV")
-
-
 # In[21]:
 
 
-drawPie("Elem2", "BIB_PieFirstInt", title="1p5TeV")
-drawPie("Elem2", "BIB_PieFirstInt", title="3TeV", bFlag=True)
+drawPie("Elem", "BIB_PieDet", title=labelA)
+drawPie("Elem", "BIB_PieDet", bFlag=True, title=labelB)
+
+
+# In[22]:
+
+
+drawPie("Elem2", "BIB_PieFirstInt", title=labelA)
+drawPie("Elem2", "BIB_PieFirstInt", title=labelB, bFlag=True)
 
 
 # ## Plot Muons' Decay Position
 
 # ### Global
 
-# In[22]:
+# In[23]:
 
 
 fig=plt.figure(figsize=(6,5))
-plot1D(fig.gca(),dataset["PosZmu"]/100, weights=dataset["Weight"],bins=nbinsH,col='m', plotTitle="Muon Decay Z", label="1.5TeV", xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
+plot1D(fig.gca(),dataset["PosZmu"]/100, weights=dataset["Weight"],bins=nbinsH,col='m', plotTitle="Muon Decay Z", label=labelA, xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
 
-plot1D(fig.gca(),datasetB["PosZmu"]/100, weights=datasetB["Weight"],bins=nbinsH,col='hotpink', plotTitle="Muon Decay Z", label="3TeV", xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
+plot1D(fig.gca(),datasetB["PosZmu"]/100, weights=datasetB["Weight"],bins=nbinsH,col='hotpink', plotTitle="Muon Decay Z", label=labelB, xlabel='$z_{\mu \,dec}$ (m)', ylabel='Arb. Units' )
 
 
 plt.ylim((100, 1e9))
@@ -594,36 +608,36 @@ pl.savefig(figname)
 
 # ### Per Particle
 
-# In[23]:
+# In[24]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(21,5), sharey=False)
 
 
-plot1D(ax[0], dataset[dataset["PDGcode"]==22]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='r', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ 1.5TeV')
-plot1D(ax[0], dataset[abs(dataset["PDGcode"])==11]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='black', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- 1.5TeV')
-plot1D(ax[0], dataset[abs(dataset["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='m', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had 1.5TeV')
-plot1D(ax[0], dataset[dataset["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='blue', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n  1.5TeV')
-plot1D(ax[0], dataset[abs(dataset["PDGcode"])==13]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='chartreuse', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- 1.5TeV')
+plot1D(ax[0], dataset[dataset["PDGcode"]==22]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='r', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ '+labelA)
+plot1D(ax[0], dataset[abs(dataset["PDGcode"])==11]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='black', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- '+labelA)
+plot1D(ax[0], dataset[abs(dataset["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='m', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had '+labelA)
+plot1D(ax[0], dataset[dataset["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='blue', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n '+labelA)
+plot1D(ax[0], dataset[abs(dataset["PDGcode"])==13]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='chartreuse', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- '+labelA)
 
-plot1D(ax[1], datasetB[datasetB["PDGcode"]==22]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='salmon', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ 3TeV')
-plot1D(ax[1], datasetB[abs(datasetB["PDGcode"])==11]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='dimgrey', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- 3TeV')
-plot1D(ax[1], datasetB[abs(datasetB["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='hotpink', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had 3TeV')
-plot1D(ax[1], datasetB[datasetB["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='cyan', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n  3TeV')
-plot1D(ax[1], datasetB[abs(datasetB["PDGcode"])==13]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='springgreen', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- 3TeV')
+plot1D(ax[1], datasetB[datasetB["PDGcode"]==22]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='salmon', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ '+labelB)
+plot1D(ax[1], datasetB[abs(datasetB["PDGcode"])==11]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='dimgrey', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- '+labelB)
+plot1D(ax[1], datasetB[abs(datasetB["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='hotpink', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had '+labelB)
+plot1D(ax[1], datasetB[datasetB["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='cyan', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n '+labelB)
+plot1D(ax[1], datasetB[abs(datasetB["PDGcode"])==13]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='springgreen', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- '+labelB)
 
 
-plot1D(ax[2], dataset[dataset["PDGcode"]==22]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='r', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ 1.5TeV')
-plot1D(ax[2], dataset[abs(dataset["PDGcode"])==11]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='black', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- 1.5TeV')
-plot1D(ax[2], dataset[abs(dataset["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='m', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had 1.5TeV')
-plot1D(ax[2], dataset[dataset["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='blue', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n  1.5TeV')
-plot1D(ax[2], dataset[abs(dataset["PDGcode"])==13]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='chartreuse', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- 1.5TeV')
+plot1D(ax[2], dataset[dataset["PDGcode"]==22]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='r', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ '+labelA)
+plot1D(ax[2], dataset[abs(dataset["PDGcode"])==11]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='black', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- '+labelA)
+plot1D(ax[2], dataset[abs(dataset["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='m', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had '+labelA)
+plot1D(ax[2], dataset[dataset["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=dataset[dataset["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='blue', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n '+labelA)
+plot1D(ax[2], dataset[abs(dataset["PDGcode"])==13]["PosZmu"]/100,log=True, weights=dataset[abs(dataset["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='chartreuse', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- '+labelA)
 
-plot1D(ax[2], datasetB[datasetB["PDGcode"]==22]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='salmon', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ 3TeV')
-plot1D(ax[2], datasetB[abs(datasetB["PDGcode"])==11]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='dimgrey', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- 3TeV')
-plot1D(ax[2], datasetB[abs(datasetB["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='hotpink', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had 3TeV')
-plot1D(ax[2], datasetB[datasetB["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='cyan', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n  3TeV')
-plot1D(ax[2], datasetB[abs(datasetB["PDGcode"])==13]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='springgreen', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- 3TeV')
+plot1D(ax[2], datasetB[datasetB["PDGcode"]==22]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==22]["Weight"],bins=nbinsZ,rng=(-1,25),col='salmon', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label='$\gamma$ '+labelB)
+plot1D(ax[2], datasetB[abs(datasetB["PDGcode"])==11]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==11]["Weight"],bins=nbinsZ,rng=(-1,25),col='dimgrey', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'e+e- '+labelB)
+plot1D(ax[2], datasetB[abs(datasetB["PDGcode"])==2212]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==2212]["Weight"],bins=nbinsZ,rng=(-1,25),col='hotpink', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'ch. had '+labelB)
+plot1D(ax[2], datasetB[datasetB["PDGcode"]==2112]["PosZmu"]/100,log=True, weights=datasetB[datasetB["PDGcode"]==2112]["Weight"],bins=nbinsZ,rng=(-1,25),col='cyan', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", label= 'n '+labelB)
+plot1D(ax[2], datasetB[abs(datasetB["PDGcode"])==13]["PosZmu"]/100,log=True, weights=datasetB[abs(datasetB["PDGcode"])==13]["Weight"],bins=nbinsZ,rng=(-1,25),col='springgreen', xlabel= "$z_{\mu \,dec}$ (m)", ylabel="Arb. Units", plotTitle="Mu decay point", label= 'mu+mu- '+labelB)
 
 
 
@@ -636,15 +650,15 @@ figname="BIB_Mudec2"
 pl.savefig(figname)
 
 
-# In[24]:
+# In[25]:
 
 
 fig, ax = plt.subplots(nrows=2, ncols=1, figsize=(9,8), sharey=False)
 
-ax[0].set_title('FLUKA 1.5TeV',fontsize=22)
+ax[0].set_title('FLUKA '+ labelA,fontsize=22)
 ax[0].hist2d(dataset["PosZ"],dataset["PosX"],norm=matplotlib.colors.LogNorm(),bins=500, cmap='plasma')
 
-ax[1].set_title('FLUKA 3TeV',fontsize=22)
+ax[1].set_title('FLUKA '+labelB,fontsize=22)
 
 ax[1].hist2d(datasetB["PosZ"],datasetB["PosX"],norm=matplotlib.colors.LogNorm(),bins=500, cmap='plasma')
 
@@ -665,7 +679,7 @@ pl.savefig(figname)
 
 # ### Scatter Plots
 
-# In[25]:
+# In[26]:
 
 
 fig = plt.figure(figsize=(8, 8))
@@ -679,7 +693,7 @@ figname="BIB_decph"
 pl.savefig(figname)
 
 
-# In[26]:
+# In[27]:
 
 
 fig = plt.figure(figsize=(8, 8))
@@ -693,7 +707,7 @@ figname="BIB_decphB"
 pl.savefig(figname)
 
 
-# In[27]:
+# In[28]:
 
 
 fig = plt.figure(figsize=(8, 8))
@@ -707,7 +721,7 @@ figname="BIB_decelpos"
 pl.savefig(figname)
 
 
-# In[28]:
+# In[29]:
 
 
 fig = plt.figure(figsize=(8, 8))
@@ -721,7 +735,7 @@ figname="BIB_decelposB"
 pl.savefig(figname)
 
 
-# In[29]:
+# In[30]:
 
 
 fig = plt.figure(figsize=(8, 8))
@@ -735,7 +749,7 @@ figname="BIB_decneu"
 pl.savefig(figname)
 
 
-# In[30]:
+# In[31]:
 
 
 fig = plt.figure(figsize=(8, 8))
@@ -747,6 +761,12 @@ ax_histy = fig.add_axes(rect_histy, sharey=ax)
 scatter_histo(datasetB[abs(datasetB["PDGcode"])==2112]["PosZ"], datasetB[abs(datasetB["PDGcode"])==2112]["Time"], ax, ax_histx, ax_histy, weights=datasetB[abs(datasetB["PDGcode"])==2112]["Weight"])
 figname="BIB_decneuB"
 pl.savefig(figname)
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
