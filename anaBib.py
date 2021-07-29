@@ -60,7 +60,7 @@ def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None
     ax1.set(xlabel='HU', ylabel='[#]', title=title)
     ax1.legend()
     plt.yscale('log')
-    plt.show()
+#    plt.show()
 
 def plot1D(ax,x,plotTitle="", label="",xlabel="x",ylabel="y",log=True,col="r", weights=None,bins=None,rng=None, numPart=None):
     ax.set_xlabel(xlabel,fontsize='14')
@@ -360,7 +360,7 @@ if True:
         if v!=0:
             axs[2].text(i , v, "{:.2e}".format(v), color="tab:orange")
 pl.savefig("BIB_ParticleDistribution")
-plt.show()
+#plt.show()
 
 
 # In[11]:
