@@ -16,8 +16,10 @@ The package is composed by 2 python programs:
 
 - To read fluka `DUMP` files:
 ```
-python --dataPath /path/to/DUMPfiles/with* --outPath /path/to/outputfile ReadBIBFiles.py
+python --dataPath "/path/to/DUMPfiles/with*" --outPath "/path/to/outputfile" ReadBIBFiles.py
 ```
+[please note the "" if you want to use wildcards (*...)]
+
 
 - To analyse BIB:
 ```
