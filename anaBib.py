@@ -3,7 +3,7 @@
 
 # # BIB ANALYSIS
 
-# In[1]:
+# In[25]:
 
 
 import math
@@ -20,6 +20,7 @@ from particle import PDGID
 from particle import Particle
 flag3TeV=False
 flagCFR=True
+flagApplyPaperEnCut=True
 
 if (not flagCFR):
     if (not flag3TeV):
@@ -27,13 +28,22 @@ if (not flagCFR):
     else:
         inputFile="DigFiles/Part3TeV.dump"
 else:
-    inputFileA="DigFiles/Part1.5TeV.dump"
+    inputFileA="DigFiles/Part1.5TeV.dumpCamEnCut"
     labelA="1p5TeV"
+    labelA="1p5TeVPaper"
+
+
 #    inputFileB="DigFiles/Part1.5TeV.mineNotOrd"
 #    inputFileB="DigFiles/Part3TeV.dump"
     inputFileB="DigFiles/Part1.5TeV_200.dump"
+#    inputFileB="DigFiles/Part1.5TeV.dumpCam"
+
+
 #    labelB="3TeV"
-    labelB="1p5TeV_200"
+    labelB="1p5TeV_200_PaperCut"
+
+#    labelB="1p5TeVCamMyCut"
+
 
 
         #inputFile=folder+"/part_new_sigma_25_nocut"
@@ -60,7 +70,7 @@ def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None
     ax1.set(xlabel='HU', ylabel='[#]', title=title)
     ax1.legend()
     plt.yscale('log')
-#    plt.show()
+    plt.show()
 
 def plot1D(ax,x,plotTitle="", label="",xlabel="x",ylabel="y",log=True,col="r", weights=None,bins=None,rng=None, numPart=None):
     ax.set_xlabel(xlabel,fontsize='14')
@@ -175,9 +185,21 @@ else:
 #dataset.info()
 
 
-# ## Let's have a look at muon decay z position
+# ## Energy cuts
 
 # In[4]:
+
+
+enCutPh=0.2e-3
+enCutNeu=0.1e-3
+enCutElPos=0.2e-3
+enCutChHad=1e-3
+enCutMu=1e-3
+
+
+# ## Let's have a look at muon decay z position
+
+# In[5]:
 
 
 bw=1
@@ -237,16 +259,27 @@ pl.savefig(figname)
 
 # ### If Needed, let's apply a z-cut
 
-# In[5]:
+# In[6]:
 
 
 dataset=dataset[dataset["PosZmu"]<2500] #in cm
 datasetB=datasetB[datasetB["PosZmu"]<2500] #in cm
 
 
+# In[8]:
+
+
+if flagApplyPaperEnCut:
+    datasetB=datasetB.drop(datasetB[(datasetB["PDGcode"] == 22) & (datasetB["KinE"] < enCutPh)].index)
+    datasetB=datasetB.drop(datasetB[((datasetB["PDGcode"]==11)|(datasetB["PDGcode"]==-11)) & (datasetB["KinE"] < enCutElPos)].index)
+    datasetB=datasetB.drop(datasetB[((datasetB["PDGcode"]).isin(listChargedHadrons)) & (datasetB["KinE"] < enCutChHad)].index)
+    datasetB=datasetB.drop(datasetB[((datasetB["PDGcode"]==13)|(datasetB["PDGcode"]==-13)) & (datasetB["KinE"] < enCutMu)].index)
+    datasetB=datasetB.drop(datasetB[(datasetB["PDGcode"] == 2112) & (datasetB["KinE"] < enCutNeu)].index)
+
+
 # ## List of found particles' IDs
 
-# In[6]:
+# In[9]:
 
 
 (lista, freq)=np.unique(dataset["PDGcode"], return_counts=True)
@@ -256,7 +289,7 @@ interestingParticles=list(set(lista).union(set(listaB)))
 interestingParticles.sort()
 
 
-# In[7]:
+# In[10]:
 
 
 entriesA=[]
@@ -282,7 +315,7 @@ for particle in interestingParticles:
     #print()
 
 
-# In[8]:
+# In[11]:
 
 
 unknownParticle="??"
@@ -299,16 +332,12 @@ for particle in interestingParticles:
         particleNamesList.append(unknownParticle)
 
 
-# In[9]:
+# print(interestingParticles)
+# print(particleNamesList)
+# print(entriesA)
+# print(entriesB)
 
-
-print(interestingParticles)
-print(particleNamesList)
-print(entriesA)
-print(entriesB)
-
-
-# In[10]:
+# In[12]:
 
 
 #print("Found the following particles (in descending multiplicity order)\n",particleNamesList,"\n", particleList)
@@ -363,7 +392,7 @@ pl.savefig("BIB_ParticleDistribution")
 #plt.show()
 
 
-# In[11]:
+# In[13]:
 
 
 if True:
@@ -371,7 +400,7 @@ if True:
     datasetB["Time"]=datasetB["Time"]+timeOffset
 
 
-# In[12]:
+# In[14]:
 
 
 data_ph=dataset[dataset["PDGcode"]==22]
@@ -386,7 +415,7 @@ data_mupmum=dataset[(dataset["PDGcode"]==-13)|(dataset["PDGcode"]==13)]
 data_chh=dataset[(dataset["PDGcode"]).isin(listChargedHadrons)]
 
 
-# In[13]:
+# In[15]:
 
 
 data_phB=datasetB[datasetB["PDGcode"]==22]
@@ -401,7 +430,20 @@ data_mupmumB=datasetB[(datasetB["PDGcode"]==-13)|(datasetB["PDGcode"]==13)]
 data_chhB=datasetB[(datasetB["PDGcode"]).isin(listChargedHadrons)]
 
 
-# In[14]:
+# applyMarsCuts=True
+# if applyMarsCuts:
+#     data_phB=datasetB[(datasetB["PDGcode"]==22) & (datasetB["KinE"]>0.200e-3)]
+#     data_posB=datasetB[(datasetB["PDGcode"]==-11) & (datasetB["KinE"]>0.200e-3)]
+#     data_elB=datasetB[(datasetB["PDGcode"]==11) & (datasetB["KinE"]>0.200e-3)]
+#     data_elposB=datasetB[(datasetB["PDGcode"]==11)|(datasetB["PDGcode"]==-11) & (datasetB["KinE"]>0.200e-3)]
+#     data_prB=datasetB[(datasetB["PDGcode"]==2212) & (datasetB["KinE"]>1e-3)]
+#     data_neuB=datasetB[(datasetB["PDGcode"]==2112) & (datasetB["KinE"]>0.100e-3)]
+#     data_mumB=datasetB[(datasetB["PDGcode"]==13) & (datasetB["KinE"]>1e-3)]
+#     data_mupB=datasetB[(datasetB["PDGcode"]==-13) & (datasetB["KinE"]>1e-3)]
+#     data_mupmumB=datasetB[(datasetB["PDGcode"]==-13)|(datasetB["PDGcode"]==13) & (datasetB["KinE"]>1e-3)]
+#     data_chhB=datasetB[(datasetB["PDGcode"]).isin(listChargedHadrons) & (datasetB["KinE"]>1e-3)]
+
+# In[16]:
 
 
 n_ph= sum(data_ph["Weight"])
@@ -416,7 +458,7 @@ n_elpos=n_el+n_pos
 n_mu=n_mup+n_mum
 
 
-# In[15]:
+# In[17]:
 
 
 n_phB= sum(data_phB["Weight"])
@@ -433,19 +475,21 @@ n_muB=n_mupB+n_mumB
 
 # ## Print Particle Numbers
 
-# In[16]:
+# In[18]:
 
 
-print('N photons= ', "{:.2e}".format(n_ph), '\nn positrons= ', "{:.2e}".format(n_pos), '\nn electrons= ', "{:.2e}".format(n_el), '\nn protons= ', "{:.2e}".format(n_pr), '\nn neutrons= ', "{:.2e}".format(n_neu), '\nn ch hadr= ', "{:.2e}".format(n_chh), '\nn mum= ', "{:.2e}".format(n_mum), '\nn mup= ', "{:.2e}".format(n_mup))
+print(labelA)
+print('N photons= ', "{:.2e}".format(n_ph), '\nn positrons= ', "{:.2e}".format(n_pos), '\nn electrons= ', "{:.2e}".format(n_el), '\nn elePos= ', "{:.2e}".format(n_elpos), '\nn protons= ', "{:.2e}".format(n_pr), '\nn neutrons= ', "{:.2e}".format(n_neu), '\nn ch hadr= ', "{:.2e}".format(n_chh), '\nn mum= ', "{:.2e}".format(n_mum), '\nn mup= ', "{:.2e}".format(n_mup), '\nn mupmum= ', "{:.2e}".format(n_mu))
 print()
-print('N photons= ', "{:.2e}".format(n_phB), '\nn positrons= ', "{:.2e}".format(n_posB), '\nn electrons= ', "{:.2e}".format(n_elB), '\nn protons= ', "{:.2e}".format(n_prB), '\nn neutrons= ', "{:.2e}".format(n_neu), '\nn ch hadr= ', "{:.2e}".format(n_chhB), '\nn mum= ', "{:.2e}".format(n_mumB), '\nn mup= ', "{:.2e}".format(n_mupB))
+print(labelB)
+print('N photons= ', "{:.2e}".format(n_phB), '\nn positrons= ', "{:.2e}".format(n_posB), '\nn electrons= ', "{:.2e}".format(n_elB), '\nn elPos= ', "{:.2e}".format(n_elposB), '\nn protons= ', "{:.2e}".format(n_prB), '\nn neutrons= ', "{:.2e}".format(n_neu), '\nn ch hadr= ', "{:.2e}".format(n_chhB), '\nn mum= ', "{:.2e}".format(n_mumB), '\nn mup= ', "{:.2e}".format(n_mupB), '\nn mupmum= ', "{:.2e}".format(n_muB))
 
 
 # ## Plot Energy Spectra
 
 # ### All relevant particles
 
-# In[17]:
+# In[19]:
 
 
 fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(22,5), sharey=False)
@@ -469,7 +513,7 @@ pl.savefig(figname)
 
 # ### Photons and e+/e-
 
-# In[18]:
+# In[20]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(24,8), sharey=False)
@@ -497,7 +541,7 @@ pl.savefig(figname)
 
 # ### Hadrons
 
-# In[19]:
+# In[21]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(24,8), sharey=False)
@@ -526,7 +570,7 @@ pl.savefig(figname)
 
 # ## Plot Time Distributions
 
-# In[20]:
+# In[22]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=3, figsize=(24,8), sharey=False)
@@ -574,14 +618,14 @@ pl.savefig(figname)
 
 # ## Plot Pie Charts
 
-# In[21]:
+# In[23]:
 
 
 drawPie("Elem", "BIB_PieDet", title=labelA)
 drawPie("Elem", "BIB_PieDet", bFlag=True, title=labelB)
 
 
-# In[22]:
+# In[24]:
 
 
 drawPie("Elem2", "BIB_PieFirstInt", title=labelA)
