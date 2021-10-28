@@ -1,5 +1,5 @@
 # Software package to perform BIB analysis
-*Last update: 26-07-2021 by collamaf*
+*Last update: 28-10-2021 by collamaf*
 
 ----------
 
@@ -23,9 +23,9 @@ python --dataPath "/path/to/DUMPfiles/with*" --outPath "/path/to/outputfile" Rea
 
 - To analyse BIB:
 ```
-python anaBib.py
+python anaBib.py --runName "MyRun" --fileList File1 File2 --labelList Label1 Label2
 ```
 
-
-This program looks for both 1.5 and 3TeV Monte Carlo results in `DigFiles/Part1.5TeV.dump` and `DigFiles/Part3TeV.dump` respectively.
+The program reads the files (1 or more), and creates several `.png ` files of relevant plots (comparing variables per particle and/or per run).
 Png files of the plots are produced in the same folder.
+
