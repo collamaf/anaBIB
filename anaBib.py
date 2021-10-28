@@ -99,7 +99,7 @@ datasetList=[]
 
 # ## Utility Functions
 
-# In[44]:
+# In[4]:
 
 
 def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None, label3=""):
@@ -265,6 +265,45 @@ def plotDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb
     figname=runName+figTitle
     pl.savefig(figname)
         
+def plotMomenta(datasetList, particleList, particlesLabel, title, xlabel="p [GeV/c]", ylabel="Arb. Units", nbins=nbins, log=True, figName="", xrange=None, ymax=None):
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
+    plt.suptitle(runName+title)
+
+    for i, dataset in enumerate(datasetList):
+        ax[i].set_xlabel(xlabel,fontsize='14')
+        ax[i].set_ylabel(ylabel,fontsize='14')
+
+        for iPart, particle in enumerate(particleList):
+            temp=ax[i].hist(getMomentum(dataset, particle),histtype='step', bins=nbins, 
+                   weights=getInfo(dataset, particle, "Weight"), log=log, range=xrange, 
+                   label=particlesLabel[iPart]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,particle),getInfo(dataset,particle,"KinE").mean()))
+            
+            ax[len(datasetList)].hist(getMomentum(dataset, particle),histtype='step', bins=nbins, weights=getInfo(dataset, particle, "Weight"), log=log, range=xrange, label=labelList[i]+" "+particlesLabel[iPart])
+        
+            if iPart==0 and i==0:
+                maxHeight=temp[0].max() #Calcolo l'altezza massima del bin in modo da forzare gli N grafici ad avere la stessa scala verticale facilitando il confronto
+        print("{:.2e}".format(maxHeight))
+
+        if ymax!=None:
+            ax[i].axis(ymin=1e1, ymax=ymax)
+        else:
+            ax[i].axis(ymin=1e1, ymax=maxHeight*2)
+            
+        ax[i].set_title(labelList[i])
+        ax[i].legend()
+    
+    if ymax!=None:
+        ax[len(datasetList)].axis(ymin=1e1, ymax=ymax)
+    else:
+        ax[len(datasetList)].axis(ymin=1e1, ymax=maxHeight*2)
+            
+    ax[len(datasetList)].set_title("Comparison")
+    ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel("p [GeV/c]",fontsize='14')
+    ax[len(datasetList)].set_ylabel("Arb. Units",fontsize='14')
+
+    figname=runName+figName
+    pl.savefig(figname)
     
 def scatter_histo(x, y, ax, ax_histx, ax_histy, weights=None, xlabel="", ylabel="", xrange=[-750, 750], yrange=[-30,30]):
     ax_histx.tick_params(axis="x", labelbottom=False)
@@ -306,7 +345,7 @@ rect_histy = [left + width + spacing, bottom, 0.2, height]
 
 # ## Read Datasets
 
-# In[5]:
+# In[ ]:
 
 
 for fileNumber, fileName in enumerate(inputFilesList):
@@ -319,7 +358,7 @@ for fileNumber, fileName in enumerate(inputFilesList):
 
 # ## Let's have a look at muon decay z position
 
-# In[6]:
+# In[ ]:
 
 
 nBinZ=[]
@@ -327,7 +366,7 @@ histoCumA=[]
 histoCumAnorm=[]
 
 
-# In[7]:
+# In[ ]:
 
 
 fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
@@ -359,7 +398,7 @@ pl.savefig(figname)
 
 # ### If Needed, let's apply a z-cut
 
-# In[8]:
+# In[ ]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -377,7 +416,7 @@ for i, dataset in enumerate(datasetList):
 
 # ## List of found particles' IDs
 
-# In[9]:
+# In[ ]:
 
 
 foundParticlesList=[]
@@ -389,7 +428,7 @@ foundParticlesUniqueEntries=[]
 
 # ### Creiamo una lista con tutte e sole le particelle che sono comparse in almeno un dataset
 
-# In[10]:
+# In[ ]:
 
 
 for dataset in datasetList:
@@ -405,7 +444,7 @@ print("List of all (and unique) found particles in all datasets\n", foundParticl
 
 # ### Recupero i nomi di queste particelle
 
-# In[11]:
+# In[ ]:
 
 
 unknownParticle="??"
@@ -425,7 +464,7 @@ print("List of all (and unique) found particles in all datasets\n", particleName
 
 # ### Per ogni particella, calcoliamo la frequenza con cui è comparsa in ciascun dataset
 
-# In[12]:
+# In[ ]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -439,7 +478,7 @@ for i, dataset in enumerate(datasetList):
  #   print("Dataset {} - List of particles entries: {}\n\n".format(i, np.around(foundParticlesUniqueEntries[i],2)))
 
 
-# In[59]:
+# In[ ]:
 
 
 fig, axs = plt.subplots(nrows=len(datasetList)+1, ncols=1, figsize=(18,len(datasetList)*8))
@@ -474,7 +513,7 @@ pl.savefig(figname)
 
 # ## Count Particle Numbers
 
-# In[14]:
+# In[ ]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -496,7 +535,7 @@ for i, dataset in enumerate(datasetList):
 
 # ### All relevant particles
 
-# In[27]:
+# In[ ]:
 
 
 fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(22,5), sharey=False)
@@ -529,80 +568,25 @@ pl.savefig(figname)
 
 # ### Photons and e+/e-
 
-# In[31]:
+# In[ ]:
 
 
-fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
-plt.suptitle(runName+"E.M. Components")
+xmax=np.percentile(getMomentum(datasetList[0],22,"KinE").to_numpy(),99.999) # Get rid of outliers
 
-for i, dataset in enumerate(datasetList):
-    ax[i].set_xlabel("p [GeV/c]",fontsize='14')
-    ax[i].set_ylabel("Arb. Units",fontsize='14')
-    
-    temp=ax[i].hist(getMomentum(dataset, 22),histtype='step', bins=nbinsH, weights=getInfo(dataset, 22, "Weight"), log=True, range=[0,np.percentile(getInfo(datasetList[0],22,"KinE").to_numpy(),99.999)], label="$\gamma$"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,"KinE").mean()))
-    ax[i].hist(getMomentum(dataset, [11,-11]),histtype='step', bins=nbinsH, weights=getInfo(dataset, [11,-11], "Weight"), log=True, range=[0,np.percentile(getInfo(datasetList[0],22,"KinE").to_numpy(),99.999)], label="$e^-~/~e^+$"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,-11],"KinE").mean()))
-
-    if i==0:
-        maxHeight=temp[0].max() #Calcolo l'altezza massima del bin in modo da forzare gli N grafici ad avere la stessa scala verticale facilitando il confronto
-        #print(maxHeight)
-        
-    ax[i].set_title(labelList[i])
-    ax[i].legend()
-    ax[i].axis(ymin=1e1, ymax=maxHeight*2)
-
-    ax[len(datasetList)].hist(getMomentum(dataset, 22),histtype='step', bins=nbinsH, weights=getInfo(dataset, 22, "Weight"), log=True, range=[0,np.percentile(getInfo(datasetList[0],22,"KinE").to_numpy(),99.999)], label=labelList[i]+" $\gamma$"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,"KinE").mean()))
-    ax[len(datasetList)].hist(getMomentum(dataset, [11,-11]),histtype='step', bins=nbinsH, weights=getInfo(dataset, [11,-11], "Weight"), log=True, range=[0,np.percentile(getInfo(datasetList[0],22,"KinE").to_numpy(),99.999)], label=labelList[i]+" $e^-~/~e^+$"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,-11],"KinE").mean()))
-    ax[len(datasetList)].axis(ymin=1e1, ymax=maxHeight*2)
-
-ax[len(datasetList)].set_title("Comparison")
-ax[len(datasetList)].legend()
-ax[len(datasetList)].set_xlabel("p [GeV/c]",fontsize='14')
-ax[len(datasetList)].set_ylabel("Arb. Units",fontsize='14')
-
-figname=runName+"EneEGamma"
-pl.savefig(figname)
+plotMomenta(datasetList, [22, [11,-11]], ["$\gamma$", "$e^-~/~e^+$"], "EneEM", nbins=nbinsH, figName="EneEGamma", xrange=[0,xmax])
 
 
 # ### Hadrons
 
-# In[39]:
+# In[ ]:
 
 
-fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
-plt.suptitle(runName+"Hadrons")
-
-for i, dataset in enumerate(datasetList):
-    ax[i].set_xlabel("p [GeV/c]",fontsize='14')
-    ax[i].set_ylabel("Arb. Units",fontsize='14')
-    
-    ax[i].hist(getMomentum(dataset, listChargedHadrons),histtype='step', bins=nbinsH, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=True, range=[0,1], label="Ch. Had."+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,"KinE").mean()))
-    temp=ax[i].hist(getMomentum(dataset, 2112),histtype='step', bins=nbinsH, weights=getInfo(dataset, 2112, "Weight"), log=True, range=[0,1], label="Neutrons"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,-11],"KinE").mean()))
-
-    if i==0:
-        maxHeight=temp[0].max() #Calcolo l'altezza massima del bin in modo da forzare gli N grafici ad avere la stessa scala verticale facilitando il confronto
-        #print(maxHeight)
-    ax[i].set_title(labelList[i])
-    ax[i].legend()
-    ax[i].axis(ymin=1e1, ymax=maxHeight*2)
-    
-    ax[len(datasetList)].hist(getMomentum(dataset, listChargedHadrons),histtype='step', bins=nbinsH, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=True, range=[0,1], label=labelList[i]+" Ch. Had."+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,"KinE").mean()))
-    ax[len(datasetList)].hist(getMomentum(dataset, 2112),histtype='step', bins=nbinsH, weights=getInfo(dataset, 2112, "Weight"), log=True, range=[0,1], label=labelList[i]+" Neutrons"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,-11],"KinE").mean()))
-    ax[len(datasetList)].axis(ymin=1e1, ymax=maxHeight*2)
-
-
-ax[len(datasetList)].set_title("Comparison")
-ax[len(datasetList)].legend()
-ax[len(datasetList)].set_xlabel("p [GeV/c]",fontsize='14')
-ax[len(datasetList)].set_ylabel("Arb. Units",fontsize='14')
-
-#plt.xlim((0,1))
-figname=runName+"EneHadrons"
-pl.savefig(figname)
+plotMomenta(datasetList, [2112, listChargedHadrons], ["Neutrons","Ch. Had"], "EneHad", nbins=nbinsH, figName="EneHadrons", xrange=[0,1])
 
 
 # ## Plot Time Distributions
 
-# In[40]:
+# In[ ]:
 
 
 plotDistribution(datasetList, "Time", "Time Distribution", "t [ns]", "Arb. Units", nbinsH, True, "Time", xrange=(-30,100))
@@ -610,14 +594,14 @@ plotDistribution(datasetList, "Time", "Time Distribution", "t [ns]", "Arb. Units
 
 # ## Pie Plot Charts
 
-# In[45]:
+# In[ ]:
 
 
 for i, dataset in enumerate(datasetList):
     drawPie(dataset, "Elem","PieDet_"+labelList[i])
 
 
-# In[46]:
+# In[ ]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -628,7 +612,7 @@ for i, dataset in enumerate(datasetList):
 
 # ### Global
 
-# In[48]:
+# In[ ]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -647,13 +631,13 @@ pl.savefig(figname)
 
 # ### Per Particle
 
-# In[49]:
+# In[ ]:
 
 
 plotDistribution(datasetList, "PosZmu", "Muon Decay Z Per Particle", '$z_{\mu \,dec}$ [cm]', "Arb. Units", nbinsZ, True, "MuDecPart", ymax=1e7)
 
 
-# In[50]:
+# In[ ]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -681,7 +665,7 @@ pl.savefig(figname)
 
 # ### Scatter Plots
 
-# In[51]:
+# In[ ]:
 
 
 fig = plt.figure(figsize=(5,5))
