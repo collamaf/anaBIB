@@ -25,8 +25,7 @@ else:
 if args.outPath:
     outfile=args.outPath
 else:
-    outfile1 = "FLUKAresults/3TeV_point_BH_WM_NEW"
-    outfile2 = "FLUKAresults/3TeV_point_BH_WM_NEW_electrons"
+    outfile = "FLUKAresults/3TeV_point_BH_WM_NEW"
 
 
 numMuonsTot=0
@@ -45,7 +44,7 @@ for filename in sorted(glob.glob(path)):
 print("Eventi TOT=", numMuonsTot)
 
 count=0
-with open(outfile1,"w") as fOut1, open(outfile2,"w") as fOut2:
+with open(outfile,"w") as fOut1, open(outfile+'_ele',"w") as fOut2:
     for filename in sorted(glob.glob(path)):
         with open(filename, 'r') as f:
             print("Aperto File", filename)
