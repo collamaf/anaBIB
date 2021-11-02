@@ -5,7 +5,7 @@
 
 # ## Imports
 
-# In[1]:
+# In[31]:
 
 
 import math
@@ -36,23 +36,32 @@ parser = argparse.ArgumentParser(description='Read data path')
 parser.add_argument('--runName', type=str, help='run name')
 parser.add_argument('--fileList', nargs='+', help='input file or files')
 parser.add_argument('--labelList', nargs='+', help='file label o labels')
+parser.add_argument('--ele', default=False, action=argparse.BooleanOptionalAction)
+
+#parser.add_argument('--ele', dest='activate non BIB electron analysis', action='store_true')
+parser.set_defaults(ele=False)
 
 if is_interactive():
     sys.argv = ['-f']
     
 args = parser.parse_args()
+
+flagReadEle=args.ele
+
 if args.fileList:
     inputFilesList=args.fileList
     labelList=args.labelList
 else:
-    inputFilesList=["DigFiles/NozzleModNorm", "DigFiles/NozzleMod"]
-    labelList=["Norm", "Mod"]
+#    inputFilesList=["DigFiles/NozzleModNorm", "DigFiles/NozzleMod"]
+    inputFilesList=["DigFiles/CV_3TeV_Norm","DigFiles/CV_3TeV_Norm_160k"]
+
+    labelList=["Norm", "Norm160k"]
 if args.runName:
     runName=args.runName+"_"
 else:
     runName="BIB_TEST_"
 
-print("Leggo Files: ", inputFilesList)
+print("Leggo Files: ", inputFilesList, flagReadEle)
 
 
 # ## Initial Flags and Variables
@@ -61,7 +70,7 @@ print("Leggo Files: ", inputFilesList)
 
 
 flagApplyPaperEnCut=False
-flagApplyZCut=True
+flagApplyZCut=False
 
 listChargedHadrons=[321, 311, 211, 2212, 3122, 3112, -321, -311, -211, -2212, -3122, -3112]
 
@@ -71,7 +80,9 @@ nbinsZ=100
 binwidth=0.8 #Unit?
 binWidthZ=1 # [m]
 
-colsToRead=["PDGcode", "KinE", "PX","PY","PZ","Weight","PosX","PosY","PosZ", "Time", "Elem","PosXmu","PosYmu","PosZmu","ind1","Elem2","ind2"]
+#colsToRead=["PDGcode", "KinE", "PX","PY","PZ","Weight","PosX","PosY","PosZ", "Time", "Elem","PosXmu","PosYmu","PosZmu","ind1","Elem2","ind2"]
+colsToRead=["PDGcode", "KinE", "PX","PY","PZ","Weight","PosX","PosY","PosZ", "Time","PosXmu","PosYmu","PosZmu","EneEle","CX","CY","CZ", "PosXFI", "PosYFI", "PosZFI"]
+colsToReadEle=["NumPart","PosXmu","PosYmu","PosZmu","EneEle","CX","CY","CZ", "PosXEle", "PosYEle", "PosZEle", "Weight"]
 
 # Energy Cuts (to reproduce MAP published results)
 enCutPh=0.2e-3
@@ -95,6 +106,8 @@ zCut=2500. #in cm
 
 
 datasetList=[]
+if flagReadEle:
+    datasetEleList=[]
 
 
 # ## Utility Functions
@@ -126,13 +139,6 @@ def plot1D(ax,x,plotTitle="", label="",xlabel="x",ylabel="y",log=True,col="r", w
         ax.hist(x,log=log,histtype='step', label=label+str.format(r' N={:.2e} $\bar x$={:.2e}',numPart if numPart else 0,x.mean()), bins=bins, range=rng, weights=weights, linestyle=ls)
     else:
         ax.hist(x,log=log,histtype='step', label=label+str.format(r' $\bar x$={:.2e}',x.mean()), bins=bins, range=rng, weights=weights, linestyle=ls)
-
-
-#    ax.hist(x,log=log,histtype='step', label=label+str.format(r' N={:.2e} $\bar x$={:.2e}',numPart if numPart else 0,x.mean()), color=col, bins=bins, range=rng, weights=weights)
-
-#    ax.hist(x,log=log,histtype='step', label=str.format(r'N={:.2e} $\bar x$={:.2e}',numPart if numPart else 0,x.mean()), color=col, bins=bins, range=rng, weights=weights)
-
-
     ax.legend(loc= "best")
     ax.grid(True)
     return ax
@@ -144,7 +150,6 @@ def plot1Dold(ax,data,label="",xlabel="x",ylabel="y",log=False,col="r", weights=
         if numPart==0:
             ax.set_title('NO PARTS ')
         else:
-#            ax.set_title('N of particles '+ str.format('{:.2e}',numPart)+"\n Mean "+ str.format('{:.2e} MeV',x.mean()*1e3),fontsize=12)
             ax.set_title('N of particles '+ str.format('{:.2e}',numPart),fontsize=12)
 
     if log:
@@ -220,7 +225,66 @@ def drawPie(dataset, var, title=""):
 #    figname=+str(title)
     pl.savefig(runName+title)
     
+def plotSingleDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None, secondaryFlag=True):
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
+    plt.suptitle(runName+plotTitle)
+    
+    for i, dataset in enumerate(datasetList):
+        
+        if secondaryFlag:
+            dataset=dataset[dataset["NumPart"]>0]
 
+        ax[i].set_xlabel(xlabel,fontsize='14')
+        ax[i].set_ylabel(ylabel,fontsize='14')
+
+        ax[i].hist(dataset[variable],histtype='step', bins=nbins, weights=dataset["Weight"], log=log, range=xrange)
+
+        ax[i].set_title(labelList[i])
+       # ax[i].legend()
+        
+        ax[len(datasetList)].hist(dataset[variable],histtype='step', bins=nbins, weights=dataset["Weight"], log=log, range=xrange, label=labelList[i])
+     
+    ax[len(datasetList)].set_title("Comparison")
+    ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
+    ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
+
+    figname=runName+figTitle
+    pl.savefig(figname)
+    
+    
+def plotSingleDistribution2D(datasetList, variableX, variableY, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", range=None, secondaryFlag=True):
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
+    plt.suptitle(runName+plotTitle)
+    
+    for i, dataset in enumerate(datasetList):
+        
+        if secondaryFlag:
+            dataset=dataset[dataset["NumPart"]>0]
+
+        ax[i].set_xlabel(xlabel,fontsize='14')
+        ax[i].set_ylabel(ylabel,fontsize='14')
+
+       # ax[i].hist(dataset[variable],histtype='step', bins=nbins, weights=dataset["Weight"], log=log, range=xrange)
+        ax[i].hist2d(dataset[variableX], dataset[variableY], range=range,weights=dataset["Weight"], bins=nbins, norm=matplotlib.colors.LogNorm(), cmap='Reds')
+        PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+        cb=plt.colorbar(PCM, ax=ax[i]) 
+        cb.set_label('Arb. Units')
+        ax[i].set_title(labelList[i])
+        
+#        ax[len(datasetList)].hist(dataset[variable],histtype='step', bins=nbins, weights=dataset["Weight"], log=log, range=xrange, label=labelList[i])
+        ax[len(datasetList)].hist2d(dataset[variableX], dataset[variableY], range=range,weights=dataset["Weight"], bins=nbins, norm=matplotlib.colors.LogNorm())
+      #  PCMb=ax[len(datasetList)].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+      #  plt.colorbar(PCMb, ax=ax[len(datasetList)]) 
+
+    ax[len(datasetList)].set_title("Comparison")
+   # ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
+    ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
+
+    figname=runName+figTitle
+    pl.savefig(figname)   
+    
     
 def plotDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None):
     fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
@@ -265,7 +329,7 @@ def plotDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb
     figname=runName+figTitle
     pl.savefig(figname)
         
-def plotMomenta(datasetList, particleList, particlesLabel, title, xlabel="p [GeV/c]", ylabel="Arb. Units", nbins=nbins, log=True, figName="", xrange=None, ymax=None):
+def plotMomenta(datasetList, particleList, particleLabel, title, xlabel="p [GeV/c]", ylabel="Arb. Units", nbins=nbins, log=True, figName="", xrange=None, ymax=None):
     fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
     plt.suptitle(runName+title)
 
@@ -276,9 +340,9 @@ def plotMomenta(datasetList, particleList, particlesLabel, title, xlabel="p [GeV
         for iPart, particle in enumerate(particleList):
             temp=ax[i].hist(getMomentum(dataset, particle),histtype='step', bins=nbins, 
                    weights=getInfo(dataset, particle, "Weight"), log=log, range=xrange, 
-                   label=particlesLabel[iPart]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,particle),getInfo(dataset,particle,"KinE").mean()))
+                   label=particleLabel[iPart]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,particle),getInfo(dataset,particle,"KinE").mean()))
             
-            ax[len(datasetList)].hist(getMomentum(dataset, particle),histtype='step', bins=nbins, weights=getInfo(dataset, particle, "Weight"), log=log, range=xrange, label=labelList[i]+" "+particlesLabel[iPart])
+            ax[len(datasetList)].hist(getMomentum(dataset, particle),histtype='step', bins=nbins, weights=getInfo(dataset, particle, "Weight"), log=log, range=xrange, label=labelList[i]+" "+particleLabel[iPart])
         
             if iPart==0 and i==0:
                 maxHeight=temp[0].max() #Calcolo l'altezza massima del bin in modo da forzare gli N grafici ad avere la stessa scala verticale facilitando il confronto
@@ -303,6 +367,40 @@ def plotMomenta(datasetList, particleList, particlesLabel, title, xlabel="p [GeV
     ax[len(datasetList)].set_ylabel("Arb. Units",fontsize='14')
 
     figname=runName+figName
+    pl.savefig(figname)
+    
+def plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False):
+    fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(22,5), sharey=False)
+    plt.suptitle(runName+"Energy Spectra")
+
+    for i, dataset in enumerate(datasetList):
+        axs[0].hist(getInfo(dataset,22,"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), range=[0,np.percentile(getInfo(datasetList[0],22,"KinE").to_numpy(),99.999)], log=logY, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,"KinE").mean()))
+        axs[1].hist(getInfo(dataset,2212,"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, 2212, "Weight"), range=[0,np.percentile(getInfo(datasetList[0],2212,"KinE").to_numpy(),99.999)], log=logY, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,2212),getInfo(dataset,2212,"KinE").mean()))
+        axs[2].hist(getInfo(dataset,[11,-11],"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), range=[0,np.percentile(getInfo(datasetList[0],[11,-11],"KinE").to_numpy(),99.999)], log=logY, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,11],"KinE").mean()))
+        axs[3].hist(getInfo(dataset,listChargedHadrons,"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), range=[0,np.percentile(getInfo(datasetList[0],listChargedHadrons,"KinE").to_numpy(),99.999)], log=logY, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,listChargedHadrons),getInfo(dataset,listChargedHadrons,"KinE").mean()))
+        axs[4].hist(getInfo(dataset,[13,-13],"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), range=[0,np.percentile(getInfo(datasetList[0],[13,-13],"KinE").to_numpy(),99.999)], log=logY, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[13,-13]),getInfo(dataset,[13,-13],"KinE").mean()))
+
+    for i in range(0,5):
+        axs[i].set_ylim(auto=True)
+        if not logX:
+            axs[i].legend(loc= "best")
+        axs[i].grid(True)
+        axs[i].set_xlabel("$E_{kin}$ [GeV]",fontsize='14')
+        axs[i].set_ylabel("Arb. Units",fontsize='14')
+        if logX:
+            axs[i].set_xscale("log")
+        
+    axs[0].set_title("$\gamma$")
+    axs[1].set_title("n")
+    axs[2].set_title("$e^-~/~e^+$")
+    axs[3].set_title("ch. had")
+    axs[4].set_title("$\mu^-~/~\mu^+$")
+
+    fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
+
+    figname=runName+"EnergySpectra"
+    if logX:
+        figname=figname+"logX"
     pl.savefig(figname)
     
 def scatter_histo(x, y, ax, ax_histx, ax_histy, weights=None, xlabel="", ylabel="", xrange=[-750, 750], yrange=[-30,30]):
@@ -345,20 +443,23 @@ rect_histy = [left + width + spacing, bottom, 0.2, height]
 
 # ## Read Datasets
 
-# In[ ]:
+# In[5]:
 
 
 for fileNumber, fileName in enumerate(inputFilesList):
     print("Read file: ",fileNumber, fileName)
     temp=pd.read_csv(fileName, header=None, names=colsToRead, delim_whitespace=True)
     datasetList.append(temp)
+    if flagReadEle:
+        tempEle=pd.read_csv(fileName+"_ele", header=None, names=colsToReadEle, delim_whitespace=True)
+        datasetEleList.append(tempEle)
 
 
 # ------------------------------------------
 
 # ## Let's have a look at muon decay z position
 
-# In[ ]:
+# In[6]:
 
 
 nBinZ=[]
@@ -366,13 +467,14 @@ histoCumA=[]
 histoCumAnorm=[]
 
 
-# In[ ]:
+# In[7]:
 
 
 fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
 axs2b=axs[3].twinx() #Same x, but different y scale
 
 for datasetNumber, dataset in enumerate(datasetList):
+    print(datasetNumber)
     nBinZ.append(int(((dataset["PosZmu"]/100).max()-(dataset["PosZmu"]/100).min())/binWidthZ))
     plot1D(axs[0],dataset["PosZmu"]/100, weights=dataset["Weight"],bins=nBinZ[-1], plotTitle="Muon Decay Z", label=labelList[datasetNumber], xlabel='', ylabel='Arb. Units' )
     axs[1].hist(dataset["PosZmu"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=False)
@@ -398,7 +500,7 @@ pl.savefig(figname)
 
 # ### If Needed, let's apply a z-cut
 
-# In[ ]:
+# In[8]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -416,7 +518,7 @@ for i, dataset in enumerate(datasetList):
 
 # ## List of found particles' IDs
 
-# In[ ]:
+# In[9]:
 
 
 foundParticlesList=[]
@@ -428,7 +530,7 @@ foundParticlesUniqueEntries=[]
 
 # ### Creiamo una lista con tutte e sole le particelle che sono comparse in almeno un dataset
 
-# In[ ]:
+# In[10]:
 
 
 for dataset in datasetList:
@@ -444,7 +546,7 @@ print("List of all (and unique) found particles in all datasets\n", foundParticl
 
 # ### Recupero i nomi di queste particelle
 
-# In[ ]:
+# In[11]:
 
 
 unknownParticle="??"
@@ -464,7 +566,7 @@ print("List of all (and unique) found particles in all datasets\n", particleName
 
 # ### Per ogni particella, calcoliamo la frequenza con cui è comparsa in ciascun dataset
 
-# In[ ]:
+# In[12]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -478,7 +580,7 @@ for i, dataset in enumerate(datasetList):
  #   print("Dataset {} - List of particles entries: {}\n\n".format(i, np.around(foundParticlesUniqueEntries[i],2)))
 
 
-# In[ ]:
+# In[13]:
 
 
 fig, axs = plt.subplots(nrows=len(datasetList)+1, ncols=1, figsize=(18,len(datasetList)*8))
@@ -513,7 +615,7 @@ pl.savefig(figname)
 
 # ## Count Particle Numbers
 
-# In[ ]:
+# In[14]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -533,86 +635,51 @@ for i, dataset in enumerate(datasetList):
 
 # ## Plot Energy Spectra
 
-# ### All relevant particles
+# ### All Relevant Particles Energy Spectra
 
-# In[ ]:
+# In[15]:
 
 
-fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(22,5), sharey=False)
-plt.suptitle(runName+"Energy Spectra")
+plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False)
 
-for i, dataset in enumerate(datasetList):
-    axs[0].hist(getInfo(dataset,22,"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), range=[0,np.percentile(getInfo(datasetList[0],22,"KinE").to_numpy(),99.999)], log=True, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,"KinE").mean()))
-    axs[1].hist(getInfo(dataset,2212,"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, 2212, "Weight"), range=[0,np.percentile(getInfo(datasetList[0],2212,"KinE").to_numpy(),99.999)], log=True, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,2212),getInfo(dataset,2212,"KinE").mean()))
-    axs[2].hist(getInfo(dataset,[11,-11],"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), range=[0,np.percentile(getInfo(datasetList[0],[11,-11],"KinE").to_numpy(),99.999)], log=True, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,11],"KinE").mean()))
-    axs[3].hist(getInfo(dataset,listChargedHadrons,"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), range=[0,np.percentile(getInfo(datasetList[0],listChargedHadrons,"KinE").to_numpy(),99.999)], log=True, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,listChargedHadrons),getInfo(dataset,listChargedHadrons,"KinE").mean()))
-    axs[4].hist(getInfo(dataset,[13,-13],"KinE"),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), range=[0,np.percentile(getInfo(datasetList[0],[13,-13],"KinE").to_numpy(),99.999)], log=True, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[13,-13]),getInfo(dataset,[13,-13],"KinE").mean()))
 
-for i in range(0,5):
-    axs[i].set_ylim(auto=True)
-    axs[i].legend(loc= "best")
-    axs[i].grid(True)
-    axs[i].set_xlabel("$E_{kin}$ [GeV]",fontsize='14')
-    axs[i].set_ylabel("Arb. Units",fontsize='14')
-axs[0].set_title("$\gamma$")
-axs[1].set_title("n")
-axs[2].set_title("$e^-~/~e^+$")
-axs[3].set_title("ch. had")
-axs[4].set_title("$\mu^-~/~\mu^+$")
+# In[16]:
 
-fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
 
-figname=runName+"EnergySpectra"
-pl.savefig(figname)
+plotAllEnergySpectra(datasetList, nbins=10000, logY=True, logX=True)
 
 
 # ### Photons and e+/e-
 
-# In[ ]:
+# In[17]:
 
 
 xmax=np.percentile(getMomentum(datasetList[0],22,"KinE").to_numpy(),99.999) # Get rid of outliers
 
-plotMomenta(datasetList, [22, [11,-11]], ["$\gamma$", "$e^-~/~e^+$"], "EneEM", nbins=nbinsH, figName="EneEGamma", xrange=[0,xmax])
+plotMomenta(datasetList=datasetList, particleList=[22, [11,-11]], particleLabel=["$\gamma$", "$e^-~/~e^+$"], title="EneEM", nbins=nbinsH, figName="EneEGamma", xrange=[0,xmax])
 
 
 # ### Hadrons
 
-# In[ ]:
+# In[18]:
 
 
-plotMomenta(datasetList, [2112, listChargedHadrons], ["Neutrons","Ch. Had"], "EneHad", nbins=nbinsH, figName="EneHadrons", xrange=[0,1])
+plotMomenta(datasetList=datasetList, particleList=[2112, listChargedHadrons], particleLabel=["Neutrons","Ch. Had"], title="EneHad", nbins=nbinsH, figName="EneHadrons", xrange=[0,1])
 
 
 # ## Plot Time Distributions
 
-# In[ ]:
+# In[19]:
 
 
-plotDistribution(datasetList, "Time", "Time Distribution", "t [ns]", "Arb. Units", nbinsH, True, "Time", xrange=(-30,100))
-
-
-# ## Pie Plot Charts
-
-# In[ ]:
-
-
-for i, dataset in enumerate(datasetList):
-    drawPie(dataset, "Elem","PieDet_"+labelList[i])
-
-
-# In[ ]:
-
-
-for i, dataset in enumerate(datasetList):
-    drawPie(dataset, "Elem2","PieFirstInt_"+labelList[i])
+plotDistribution(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="Time", xrange=(-30,100))
 
 
 # ## Plot Muons' Decay Position
 
 # ### Global
 
-# In[ ]:
+# In[20]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -631,13 +698,13 @@ pl.savefig(figname)
 
 # ### Per Particle
 
-# In[ ]:
+# In[21]:
 
 
-plotDistribution(datasetList, "PosZmu", "Muon Decay Z Per Particle", '$z_{\mu \,dec}$ [cm]', "Arb. Units", nbinsZ, True, "MuDecPart", ymax=1e7)
+plotDistribution(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e7)
 
 
-# In[ ]:
+# In[22]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -663,20 +730,28 @@ figname=runName+"ZvsX_FLUKA"
 pl.savefig(figname)
 
 
-# ### Scatter Plots
+# ## Parent Electron Plots
 
-# In[ ]:
+# In[30]:
 
 
-fig = plt.figure(figsize=(5,5))
-fig.suptitle(runName+"photons")
-ax = fig.add_axes(rect_scatter)
-ax_histx = fig.add_axes(rect_histx, sharex=ax)
-ax_histy = fig.add_axes(rect_histy, sharey=ax)
+if flagReadEle:
+    print("Plots regarding parent electrons requested")
+    plotSingleDistribution(datasetList=datasetEleList, variable="EneEle", plotTitle="Energia Elettrone Genitore", xlabel="E$_{e}$ [GeV]", ylabel="Arb. Units", nbins=100, log=True, figTitle="EnElGenitore", secondaryFlag=True)
 
-scatter_histo2(getInfo(datasetList[0], 22, "PosZ"), getInfo(datasetList[0], 22, "Time"), ax, ax_histx, ax_histy, weights=getInfo(datasetList[0], 22,"Weight"), xlabel="PosZ", ylabel="Time", xrange=[-400,400], yrange=[-20,20])
-figname=runName+"decph"
-pl.savefig(figname)
+    plotSingleDistribution(datasetList=datasetEleList, variable="PosZEle", plotTitle="Z Elettrone Genitore", xlabel="Z$_{e}$ [m]", ylabel="Arb. Units", nbins=100, log=True, figTitle="ZElGenitore", xrange=[0,1500], secondaryFlag=True)
+
+    plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore", xrange=(-1,-0.999999995), secondaryFlag=True)
+
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZmu", plotTitle="Elettrone Genitore Ene vs PosZmu", 
+                             xlabel="E$_{e}$ [GeV]", ylabel="$z_{\mu}$ [m]", nbins=nbins, log=True, 
+                             figTitle="Eevszmu_ElGenitore", range=[[0, 1500], [0, 3000]], secondaryFlag=True)
+
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZEle", plotTitle="Elettrone Genitore Ene vs PosZEle", 
+                             xlabel="E$_{e}$ [GeV]", ylabel="$z_{e}$ [m]", nbins=nbins, log=True, 
+                             figTitle="Eevszele_ElGenitore", range=[[0, 1500], [0, 800]], secondaryFlag=True)
+else:
+    print("Plots regarding parent electrons NOT requested")
 
 
 # In[ ]:
