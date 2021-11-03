@@ -23,9 +23,12 @@ python --dataPath "/path/to/DUMPfiles/with*" --outPath "/path/to/outputfile" Rea
 
 - To analyse BIB:
 ```
-python anaBib.py --runName "MyRun" --fileList File1 File2 --labelList Label1 Label2
+python anaBib.py --runName "MyRun" --fileList File1 File2 --labelList Label1 Label2 --ele
 ```
 
-The program reads the files (1 or more), and creates several `.png ` files of relevant plots (comparing variables per particle and/or per run).
+The program reads the files (1 or more), and creates several `.png ` files of relevant plots (comparing variables per particle and/or per run). 
+
+The `--ele` flag (default False) requests plots based on the `XX_ele` output file with info regarding parent electron. 
+
 Png files of the plots are produced in the same folder.
 

@@ -5,7 +5,7 @@
 
 # ## Imports
 
-# In[31]:
+# In[1]:
 
 
 import math
@@ -39,7 +39,7 @@ parser.add_argument('--labelList', nargs='+', help='file label o labels')
 parser.add_argument('--ele', default=False, action=argparse.BooleanOptionalAction)
 
 #parser.add_argument('--ele', dest='activate non BIB electron analysis', action='store_true')
-parser.set_defaults(ele=False)
+#parser.set_defaults(ele=False)
 
 if is_interactive():
     sys.argv = ['-f']
@@ -53,13 +53,13 @@ if args.fileList:
     labelList=args.labelList
 else:
 #    inputFilesList=["DigFiles/NozzleModNorm", "DigFiles/NozzleMod"]
-    inputFilesList=["DigFiles/CV_3TeV_Norm","DigFiles/CV_3TeV_Norm_160k"]
+    inputFilesList=["DigFiles/CV_3TeV_Norm_160k", "DigFiles/CV_3TeV_Mod_160k",]
 
-    labelList=["Norm", "Norm160k"]
+    labelList=["Norm160k", "Mod160k"]
 if args.runName:
     runName=args.runName+"_"
 else:
-    runName="BIB_TEST_"
+    runName="BIB_ProveNozzleCV_"
 
 print("Leggo Files: ", inputFilesList, flagReadEle)
 
@@ -112,7 +112,7 @@ if flagReadEle:
 
 # ## Utility Functions
 
-# In[4]:
+# In[27]:
 
 
 def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None, label3=""):
@@ -225,6 +225,7 @@ def drawPie(dataset, var, title=""):
 #    figname=+str(title)
     pl.savefig(runName+title)
     
+
 def plotSingleDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None, secondaryFlag=True):
     fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
     plt.suptitle(runName+plotTitle)
@@ -237,10 +238,10 @@ def plotSingleDistribution(datasetList, variable, plotTitle="", xlabel="", ylabe
         ax[i].set_xlabel(xlabel,fontsize='14')
         ax[i].set_ylabel(ylabel,fontsize='14')
 
-        ax[i].hist(dataset[variable],histtype='step', bins=nbins, weights=dataset["Weight"], log=log, range=xrange)
+        ax[i].hist(dataset[variable],histtype='step', bins=nbins, weights=dataset["Weight"], log=log, range=xrange, label=labelList[i]+str.format(r' N={:.2e} $\bar x$={:.2e}',sum(dataset["Weight"]),dataset[variable].mean()))
 
         ax[i].set_title(labelList[i])
-       # ax[i].legend()
+        ax[i].legend()
         
         ax[len(datasetList)].hist(dataset[variable],histtype='step', bins=nbins, weights=dataset["Weight"], log=log, range=xrange, label=labelList[i])
      
@@ -580,10 +581,10 @@ for i, dataset in enumerate(datasetList):
  #   print("Dataset {} - List of particles entries: {}\n\n".format(i, np.around(foundParticlesUniqueEntries[i],2)))
 
 
-# In[13]:
+# In[14]:
 
 
-fig, axs = plt.subplots(nrows=len(datasetList)+1, ncols=1, figsize=(18,len(datasetList)*8))
+fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(18,(len(datasetList)+1)*8))
 fig.suptitle(runName+"Particles Frequencies")
 for i, dataset in enumerate(datasetList):
     axs[i].bar(range(len(foundParticlesUnique)), foundParticlesUniqueEntries[i], align='center', log=True)
@@ -606,16 +607,32 @@ for i, dataset in enumerate(datasetList):
     plt.ylabel("Occurency", size='large')
     plt.legend()
     
+if len(datasetList)==2:
+    lastPlotData=(np.array(foundParticlesUniqueEntries[1])-np.array(foundParticlesUniqueEntries[0]))/np.array(foundParticlesUniqueEntries[0])*100
+    lastPlotLabel="Difference [%]"
+    lastPlotTitle=lastPlotLabel +"{}-{}".format(labelList[1],labelList[0])
+else:
+    tempMatrix=np.asmatrix(foundParticlesUniqueEntries)
+    lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()
+    lastPlotLabel="All Run RMS / Mean [%]"
+    lastPlotTitle=lastPlotLabel
+axs[len(datasetList)+1].bar(range(len(foundParticlesUnique)), lastPlotData, align='center', log=False, label=labelList[i], alpha=0.5)
+axs[len(datasetList)+1].set_title(lastPlotTitle)
+plt.sca(axs[len(datasetList)+1])
+plt.xticks(range(len(foundParticlesUnique)), particleNamesList, size='large')
+plt.xticks(rotation=90)
+plt.ylabel(lastPlotLabel, size='large')
+
 fig.subplots_adjust(top=0.93)
-#fig.tight_layout()
-plt.subplots_adjust(hspace = 0.3)
+fig.tight_layout()
+#plt.subplots_adjust(hspace = 0.1)
 figname=runName+"ParticleDistribution"
 pl.savefig(figname)
 
 
 # ## Count Particle Numbers
 
-# In[14]:
+# In[15]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -637,15 +654,10 @@ for i, dataset in enumerate(datasetList):
 
 # ### All Relevant Particles Energy Spectra
 
-# In[15]:
-
-
-plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False)
-
-
 # In[16]:
 
 
+plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False)
 plotAllEnergySpectra(datasetList, nbins=10000, logY=True, logX=True)
 
 
@@ -701,7 +713,7 @@ pl.savefig(figname)
 # In[21]:
 
 
-plotDistribution(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e7)
+plotDistribution(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
 
 
 # In[22]:
@@ -732,7 +744,7 @@ pl.savefig(figname)
 
 # ## Parent Electron Plots
 
-# In[30]:
+# In[28]:
 
 
 if flagReadEle:
@@ -741,7 +753,7 @@ if flagReadEle:
 
     plotSingleDistribution(datasetList=datasetEleList, variable="PosZEle", plotTitle="Z Elettrone Genitore", xlabel="Z$_{e}$ [m]", ylabel="Arb. Units", nbins=100, log=True, figTitle="ZElGenitore", xrange=[0,1500], secondaryFlag=True)
 
-    plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore", xrange=(-1,-0.999999995), secondaryFlag=True)
+    plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore",secondaryFlag=True)
 
     plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZmu", plotTitle="Elettrone Genitore Ene vs PosZmu", 
                              xlabel="E$_{e}$ [GeV]", ylabel="$z_{\mu}$ [m]", nbins=nbins, log=True, 
