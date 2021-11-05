@@ -36,7 +36,7 @@ parser = argparse.ArgumentParser(description='Read data path')
 parser.add_argument('--runName', type=str, help='run name')
 parser.add_argument('--fileList', nargs='+', help='input file or files')
 parser.add_argument('--labelList', nargs='+', help='file label o labels')
-parser.add_argument('--ele', default=True, action=argparse.BooleanOptionalAction)
+parser.add_argument('--ele', default=False, action=argparse.BooleanOptionalAction)
 
 #parser.add_argument('--ele', dest='activate non BIB electron analysis', action='store_true')
 #parser.set_defaults(ele=False)
@@ -53,13 +53,16 @@ if args.fileList:
     labelList=args.labelList
 else:
 #    inputFilesList=["DigFiles/NozzleModNorm", "DigFiles/NozzleMod"]
-    inputFilesList=["DigFiles/CV_3TeV_Norm_160k", "DigFiles/CV_3TeV_Mod_160k",]
+#    inputFilesList=["DigFiles/CV_3TeV_Norm_160k", "DigFiles/CV_3TeV_Mod_160k",]
+    inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_Mod_320k",]
 
-    labelList=["Norm160k", "Mod160k"]
+
+
+    labelList=["Norm320k", "Mod320k"]
 if args.runName:
     runName=args.runName+"_"
 else:
-    runName="BIB_ProveNozzleCV_"
+    runName="BIB_ProveNozzleCVHigh_"
 
 print("Leggo Files: ", inputFilesList, flagReadEle)
 
@@ -352,6 +355,26 @@ def plotDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb
     figname=runName+figTitle
     pl.savefig(figname)
         
+        
+def plotStackElePlotsBibNoBib(datasetList, variable, nbins, title, xlabel, figname, log=False):
+    fig, ax = plt.subplots(nrows=2, ncols=len(datasetList), figsize=(16,12), sharex=False)
+    fig.suptitle(title)
+    for i, dataset in enumerate(datasetEleList):
+        ax[0][i].set_title(labelList[i])
+        ax[0][i].hist(dataset[dataset["NumPart"]==0][variable], bins=50, label=["NoBib"], histtype="step", log=log)
+        ax[0][i].hist(dataset[dataset["NumPart"]>0][variable], bins=50, label=["Bib"], histtype="step", log=log)
+        ax[0][i].set_xlabel(xlabel)
+        ax[0][i].legend()
+
+        ax[1][i].set_title("Stacked "+labelList[i])
+        ax[1][i].hist([dataset[dataset["NumPart"]==0][variable],dataset[dataset["NumPart"]>0][variable]], bins=50, stacked=True, label=["NoBib","BiB"], log=log)
+        ax[1][i].set_xlabel(xlabel)
+        ax[1][i].legend()
+    fig.tight_layout()
+    plt.savefig(runName+runName+figname)
+
+
+        
 def plotMomenta(datasetList, particleList, particleLabel, title, xlabel="p [GeV/c]", ylabel="Arb. Units", nbins=nbins, log=True, figName="", xrange=None, ymax=None):
     fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
     plt.suptitle(runName+title)
@@ -425,6 +448,17 @@ def plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False):
     if logX:
         figname=figname+"logX"
     pl.savefig(figname)
+    
+def plotEleDistrWithCut(dataset, variable, cutVariable, cutCenter, cutRange, nbins=50, title="title", xlabel="x", figname="trash", log=False):
+    plt.figure(figsize=(12,6))
+    plt.title(variable + " cut on "+cutVariable +" around "+ str(cutCenter))
+    plt.hist(dataset[variable], bins=nbins, histtype="step", log=log, label="NoCut")
+    for cut in cutRange:
+        plt.hist(dataset[abs(dataset[cutVariable]-cutCenter)<cut][variable], bins=nbins, histtype="step", log=log, label="Cut_"+str(cut))
+    fig.tight_layout()
+    plt.xlabel(xlabel)
+    plt.legend()
+    plt.savefig(runName+figname)
     
 def scatter_histo(x, y, ax, ax_histx, ax_histy, weights=None, xlabel="", ylabel="", xrange=[-750, 750], yrange=[-30,30]):
     ax_histx.tick_params(axis="x", labelbottom=False)
@@ -684,8 +718,6 @@ figname=runName+"ParticleDistribution"
 pl.savefig(figname)
 
 
-# ## Compute errors on particles' number by dividing the sample in sub samples
-
 # ## Count Particle Numbers
 
 # In[15]:
@@ -805,33 +837,65 @@ pl.savefig(figname)
 
 if flagReadEle:
     print("Plots regarding parent electrons requested")
-    plotSingleDistribution(datasetList=datasetEleList, variable="EneEle", plotTitle="Energia Elettrone Genitore", xlabel="E$_{e}$ [GeV]", ylabel="Arb. Units", nbins=100, log=False, figTitle="EnElGenitore", secondaryFlag=True)
-    plotSingleDistribution(datasetList=datasetEleList, variable="EneEle", plotTitle="Energia Elettrone Genitore", xlabel="E$_{e}$ [GeV]", ylabel="Arb. Units", nbins=100, log=False, figTitle="EnElGenitore", secondaryFlag=False)
-
-
+    plotSingleDistribution(datasetList=datasetEleList, variable="EneEle", plotTitle="Energia Elettrone Genitore Cha Ha Generato BIB", xlabel="E$_{e}$ [GeV]", ylabel="Arb. Units", nbins=70, log=False, figTitle="EnElGenitoreBib", secondaryFlag=True)
+    plotSingleDistribution(datasetList=datasetEleList, variable="EneEle", plotTitle="Energia Elettrone Genitore Che NON Ha Generato BIB", xlabel="E$_{e}$ [GeV]", ylabel="Arb. Units", nbins=100, log=False, figTitle="EnElGenitoreNoBib", secondaryFlag=False)
 
     plotSingleDistribution(datasetList=datasetEleList, variable="PosZEle", plotTitle="Z Elettrone Genitore", xlabel="Z$_{e}$ [m]", ylabel="Arb. Units", nbins=100, log=True, figTitle="ZElGenitore", xrange=[0,1500], secondaryFlag=True)
 
-    plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore",secondaryFlag=True)
-    plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore",secondaryFlag=False)
+    plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore Bib", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore",secondaryFlag=True)
+    plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore NoBib", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore",secondaryFlag=False)
 
-
-
-    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZmu", plotTitle="Elettrone Genitore Ene vs PosZmu", 
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZmu", plotTitle="Elettrone Genitore Ene vs PosZmu Bib", 
                              xlabel="E$_{e}$ [GeV]", ylabel="$z_{\mu}$ [m]", nbins=nbins*2, log=True, 
                              figTitle="Eevszmu_ElGenitore_Bib", range=[[0, 1500], [0, 3000]], secondaryFlag=True)
-    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZmu", plotTitle="Elettrone Genitore Ene vs PosZmu", 
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZmu", plotTitle="Elettrone Genitore Ene vs PosZmu NoBib", 
                              xlabel="E$_{e}$ [GeV]", ylabel="$z_{\mu}$ [m]", nbins=nbins*2, log=True, 
                              figTitle="Eevszmu_ElGenitore_NoBib", range=[[0, 1500], [0, 3000]], secondaryFlag=False)
 
-    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZEle", plotTitle="Elettrone Genitore Ene vs PosZEle", 
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZEle", plotTitle="Elettrone Genitore Ene vs PosZEle Bib", 
                              xlabel="E$_{e}$ [GeV]", ylabel="$z_{e}$ [m]", nbins=nbins*2, log=True, 
                              figTitle="Eevszele_ElGenitore_Bib", range=[[0, 1500], [0, 800]], secondaryFlag=True)
 
-    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZEle", plotTitle="Elettrone Genitore Ene vs PosZEle", 
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZEle", plotTitle="Elettrone Genitore Ene vs PosZEle NoBib", 
                              xlabel="E$_{e}$ [GeV]", ylabel="$z_{e}$ [m]", nbins=nbins*2, log=True, 
                              figTitle="Eevszele_ElGenitore_NoBib", range=[[0, 1500], [0, 800]], secondaryFlag=False)
     
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="CY", plotTitle="Elettrone Genitore Ene vs CY Bib", 
+                             xlabel="E$_{e}$ [GeV]", ylabel="cos(y)", nbins=nbins*2, log=True, 
+                             figTitle="Eevscosz_ElGenitore_Bib", range=[[0, 1500], [-0.002, 0.002]], secondaryFlag=True)
+    plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="CY", plotTitle="Elettrone Genitore Ene vs CY NoBib", 
+                             xlabel="E$_{e}$ [GeV]", ylabel="cos(y)", nbins=nbins*2, log=True, 
+                             figTitle="Eevscosz_ElGenitore_NoBib", range=[[0, 1500], [-0.002, 0.002]], secondaryFlag=False)
+    ## Stack Plots
+    plotStackElePlotsBibNoBib(datasetList=datasetEleList, variable="EneEle", nbins=50, title="Parent Electron Energy Bib/NoBib", xlabel="E$_{e}$ [m]", figname="ParentEleEneStack")
+
+    plotStackElePlotsBibNoBib(datasetList=datasetEleList, variable="PosZEle", nbins=50, title="Parent Electron Energy Bib/NoBib", xlabel="Z$_{e}$ [m]", figname="ParentEleZStack")
+
+    plotStackElePlotsBibNoBib(datasetList=datasetEleList, variable="CZ", nbins=50, title="Parent Electron Energy Bib/NoBib", xlabel="cos(z)", figname="ParentEleZStack", log=True)
+
+    ## Energy Cut Plots
+    plotEleDistrWithCut(dataset=datasetEleList[0], variable="PosXEle", cutVariable="EneEle", cutCenter=500, cutRange=[100, 50, 10],nbins=100, log=True, xlabel="PosXEle [m]", figname="PosXEleCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0], variable="PosYEle", cutVariable="EneEle", cutCenter=500, cutRange=[100, 50, 10],nbins=100, log=True, xlabel="PosYEle [m]", figname="PosYEleCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0], variable="PosZEle", cutVariable="EneEle", cutCenter=500, cutRange=[100, 50, 10],nbins=100, log=True, xlabel="PosZEle [m]", figname="PosZEleCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="PosXmu", cutVariable="EneEle", cutCenter=500, cutRange=[100, 50, 10],nbins=100, log=True, xlabel="PosXmu [m]", figname="PosXMuCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="PosYmu", cutVariable="EneEle", cutCenter=500, cutRange=[100, 50, 10],nbins=100, log=True, xlabel="PosYmu [m]", figname="PosYMuCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="PosZmu", cutVariable="EneEle", cutCenter=500, cutRange=[100, 50, 10],nbins=100, log=True, xlabel="PosZmu [m]", figname="PosZMuCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="CX", cutVariable="EneEle", cutCenter=500, cutRange=[500, 450,100, 50, 10],nbins=100, log=True, xlabel="cos(x)", figname="CXCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="CY", cutVariable="EneEle", cutCenter=500, cutRange=[500, 450,100, 50, 10],nbins=100, log=True, xlabel="cos(y)", figname="CYCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="CZ", cutVariable="EneEle", cutCenter=500, cutRange=[500, 450,100, 50, 10],nbins=100, log=True, xlabel="cos(z)", figname="CZCutOnEneEle")
+
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="EneEle", cutVariable="EneEle", cutCenter=500, cutRange=[500,100, 50, 10],nbins=100, log=True, xlabel="cos(x)", figname="EnEleCutOnEneEle")
+
+
+
 else:
     print("Plots regarding parent electrons NOT requested")
 
