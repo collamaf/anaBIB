@@ -36,10 +36,8 @@ parser = argparse.ArgumentParser(description='Read data path')
 parser.add_argument('--runName', type=str, help='run name')
 parser.add_argument('--fileList', nargs='+', help='input file or files')
 parser.add_argument('--labelList', nargs='+', help='file label o labels')
-parser.add_argument('--ele', default=False, action=argparse.BooleanOptionalAction)
-
-#parser.add_argument('--ele', dest='activate non BIB electron analysis', action='store_true')
-#parser.set_defaults(ele=False)
+parser.add_argument('--ele', dest='ele', action='store_true')
+parser.set_defaults(ele=False)
 
 if is_interactive():
     sys.argv = ['-f']
@@ -54,15 +52,15 @@ if args.fileList:
 else:
 #    inputFilesList=["DigFiles/NozzleModNorm", "DigFiles/NozzleMod"]
 #    inputFilesList=["DigFiles/CV_3TeV_Norm_160k", "DigFiles/CV_3TeV_Mod_160k",]
-    inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_Mod_320k",]
+    inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_Liners",]
 
 
 
-    labelList=["Norm320k", "Mod320k"]
+    labelList=["Norm320k", "Liners"]
 if args.runName:
     runName=args.runName+"_"
 else:
-    runName="BIB_ProveNozzleCVHigh_"
+    runName="BIB_ProvaLiners_"
 
 print("Leggo Files: ", inputFilesList, flagReadEle)
 
@@ -657,7 +655,6 @@ for i, dataset in enumerate(datasetList):
     axs[i].bar(np.arange(len(foundParticlesUnique)), foundParticlesUniqueEntries[i], align='center', log=True, yerr=getParticlesNumbersErrors(dataset,nSlicesErrors), ecolor="blue", capsize=10)
 #    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
 
-
     axs[i].set_title(labelList[i]) 
     plt.sca(axs[i])
     plt.xticks(range(len(foundParticlesUnique)), particleNamesList, size='large')
@@ -678,7 +675,10 @@ for i, dataset in enumerate(datasetList):
     plt.legend()
     
 if len(datasetList)==2:
-    lastPlotData=(np.array(foundParticlesUniqueEntries[1])-np.array(foundParticlesUniqueEntries[0]))/np.array(foundParticlesUniqueEntries[0])*100
+    temp=(np.array(foundParticlesUniqueEntries[1])-np.array(foundParticlesUniqueEntries[0]))/np.array(foundParticlesUniqueEntries[0])*100
+    lastPlotData=np.array(foundParticlesUniqueEntries[1])-np.array(foundParticlesUniqueEntries[0])
+    lastPlotData=np.where(np.isinf(temp), 0, temp)
+
     lastPlotLabel="Difference [%]"
     lastPlotTitle=lastPlotLabel +"{}-{}".format(labelList[1],labelList[0])
     tempA=np.array(foundParticlesUniqueEntries[1])
@@ -687,10 +687,11 @@ if len(datasetList)==2:
     tempBerr=getParticlesNumbersErrors(datasetList[0],nSlicesErrors)
     tempC=tempB
     tempCerr=tempBerr
-    tempErr=np.sqrt(np.power(1/tempC,2)*np.power(tempAerr,2) + np.power(1/tempC,2)* np.power(tempBerr,2) + np.power((tempA-tempB)/np.power(tempC,2),2)*np.power(tempCerr,2) )
-    
+    tempTotErr=np.sqrt(np.power(1/tempC,2)*np.power(tempAerr,2) + np.power(1/tempC,2)* np.power(tempBerr,2) + np.power((tempA-tempB)/np.power(tempC,2),2)*np.power(tempCerr,2) )
+    tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
     
 else:
+    tempErr=0
     tempMatrix=np.asmatrix(foundParticlesUniqueEntries)
     lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()
     lastPlotLabel="All Run RMS / Mean [%]"
@@ -701,7 +702,7 @@ axs[len(datasetList)+1].set_ylim(-100,100)
 axs[len(datasetList)+1].locator_params(axis="y", nbins=20)
 axs[len(datasetList)+1].grid(True, which="both")
 for j, v in enumerate(lastPlotData):
-    if v!=0:
+    if v!=0 and tempErr[j]*100<100:
         axs[len(datasetList)+1].text(j , v, "{:.1f}$\pm${:.1f}".format(v,tempErr[j]*100))
 
 
