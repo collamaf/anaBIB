@@ -37,7 +37,7 @@ parser.add_argument('--runName', type=str, help='run name')
 parser.add_argument('--fileList', nargs='+', help='input file or files')
 parser.add_argument('--labelList', nargs='+', help='file label o labels')
 parser.add_argument('--ele', dest='ele', action='store_true')
-parser.set_defaults(ele=False)
+parser.set_defaults(ele=True)
 
 if is_interactive():
     sys.argv = ['-f']
@@ -52,15 +52,18 @@ if args.fileList:
 else:
 #    inputFilesList=["DigFiles/NozzleModNorm", "DigFiles/NozzleMod"]
 #    inputFilesList=["DigFiles/CV_3TeV_Norm_160k", "DigFiles/CV_3TeV_Mod_160k",]
-    inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_Liners",]
+#    inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_Liners_320k", "DigFiles/CV_3TeV_Liners13_110k","DigFiles/CV_3TeV_NozzleWidePipe_400k",]
+    inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_NozzleWidePipe_400k"]
 
 
 
-    labelList=["Norm320k", "Liners"]
+
+
+    labelList=["Norm320k", "NozzleWP"]
 if args.runName:
     runName=args.runName+"_"
 else:
-    runName="BIB_ProvaLiners_"
+    runName="BIB_NozWP_"
 
 print("Leggo Files: ", inputFilesList, flagReadEle)
 
@@ -231,7 +234,7 @@ def drawPie2(var, figName, bFlag=False, title=""):
     colors = [cmap(i) for i in np.linspace(0, 1, 8)]
     pie(sums, autopct='%1.1f%%',labels=sums.index,colors=colors)
     figname=figName+str(title)
-    pl.savefig(figname)
+    pl.savefig(figname,transparent=False, facecolor='white')
 
             
 def drawPie(dataset, var, title=""):
@@ -243,7 +246,7 @@ def drawPie(dataset, var, title=""):
     colors = [cmap(i) for i in np.linspace(0, 1, 8)]
     pie(sums, autopct='%1.1f%%',labels=sums.index,colors=colors)
 #    figname=+str(title)
-    pl.savefig(runName+title)
+    pl.savefig(runName+title,transparent=False, facecolor='white')
     
 
 def plotSingleDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None, secondaryFlag=True):
@@ -273,7 +276,7 @@ def plotSingleDistribution(datasetList, variable, plotTitle="", xlabel="", ylabe
     ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
 
     figname=runName+figTitle
-    pl.savefig(figname)
+    pl.savefig(figname,transparent=False, facecolor='white')
     
     
 def plotSingleDistribution2D(datasetList, variableX, variableY, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", range=None, secondaryFlag=True):
@@ -307,7 +310,7 @@ def plotSingleDistribution2D(datasetList, variableX, variableY, plotTitle="", xl
     ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
 
     figname=runName+figTitle
-    pl.savefig(figname)   
+    pl.savefig(figname,transparent=False, facecolor='white')   
     
     
 def plotDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None):
@@ -351,7 +354,7 @@ def plotDistribution(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb
     ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
 
     figname=runName+figTitle
-    pl.savefig(figname)
+    pl.savefig(figname,transparent=False, facecolor='white')
         
         
 def plotStackElePlotsBibNoBib(datasetList, variable, nbins, title, xlabel, figname, log=False):
@@ -369,7 +372,7 @@ def plotStackElePlotsBibNoBib(datasetList, variable, nbins, title, xlabel, figna
         ax[1][i].set_xlabel(xlabel)
         ax[1][i].legend()
     fig.tight_layout()
-    plt.savefig(runName+runName+figname)
+    plt.savefig(runName+runName+figname,transparent=False, facecolor='white')
 
 
         
@@ -411,7 +414,7 @@ def plotMomenta(datasetList, particleList, particleLabel, title, xlabel="p [GeV/
     ax[len(datasetList)].set_ylabel("Arb. Units",fontsize='14')
 
     figname=runName+figName
-    pl.savefig(figname)
+    pl.savefig(figname,transparent=False, facecolor='white')
     
 def plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False):
     fig, axs = plt.subplots(nrows=1, ncols=5, figsize=(22,5), sharey=False)
@@ -445,7 +448,7 @@ def plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False):
     figname=runName+"EnergySpectra"
     if logX:
         figname=figname+"logX"
-    pl.savefig(figname)
+    pl.savefig(figname,transparent=False, facecolor='white')
     
 def plotEleDistrWithCut(dataset, variable, cutVariable, cutCenter, cutRange, nbins=50, title="title", xlabel="x", figname="trash", log=False):
     plt.figure(figsize=(12,6))
@@ -456,7 +459,7 @@ def plotEleDistrWithCut(dataset, variable, cutVariable, cutCenter, cutRange, nbi
     fig.tight_layout()
     plt.xlabel(xlabel)
     plt.legend()
-    plt.savefig(runName+figname)
+    plt.savefig(runName+figname,transparent=False, facecolor='white')
     
 def scatter_histo(x, y, ax, ax_histx, ax_histy, weights=None, xlabel="", ylabel="", xrange=[-750, 750], yrange=[-30,30]):
     ax_histx.tick_params(axis="x", labelbottom=False)
@@ -514,7 +517,7 @@ for fileNumber, fileName in enumerate(inputFilesList):
 
 # ## Let's have a look at muon decay z position
 
-# In[6]:
+# In[8]:
 
 
 nBinZ=[]
@@ -522,7 +525,77 @@ histoCumA=[]
 histoCumAnorm=[]
 
 
-# In[7]:
+# ### Posizione in Z degli elettroni (datasetBIB)
+
+# In[9]:
+
+
+fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
+axs2b=axs[3].twinx() #Same x, but different y scale
+binWidthZ=0.1
+for datasetNumber, dataset in enumerate(datasetList):
+    print(datasetNumber)
+    nBinZ.append(int(((dataset["PosZFI"]/100).max()-(dataset["PosZFI"]/100).min())/binWidthZ))
+    plot1D(axs[0],dataset["PosZFI"]/100, weights=dataset["Weight"],bins=nBinZ[-1], plotTitle="PosZEle BIB", label=labelList[datasetNumber], xlabel='', ylabel='Arb. Units' )
+    axs[1].hist(dataset["PosZFI"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=False)
+    histoCumAnorm.append(axs[2].hist(dataset["PosZFI"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=True))
+    plot1D(axs[3],dataset["PosZFI"]/100, weights=dataset["Weight"],bins=nBinZ[-1], plotTitle="Ele Decay Z with Cumulatives", label=labelList[datasetNumber], xlabel='$z_{e \,dec}$ (m)', ylabel='Arb. Units' )
+    histoCumA=axs2b.hist(dataset["PosZFI"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=False, linestyle=':')
+
+
+#axs[0].axis(ymin=100, ymax=1e9)
+axs[0].set_xlim(0,20)
+axs[0].grid(True, which="both", axis='y')
+axs[0].locator_params(axis="x", nbins=20)
+axs[2].grid(True, which="both")
+axs[2].set_title("Cumulative Function Norm")
+axs[2].legend(loc= "best", fontsize='x-small')
+
+axs[1].legend(loc= "best", fontsize='x-small')
+axs[1].set_title("Cumulative Function Not Norm")
+axs[1].grid(True, which="both")
+
+figname=runName+"BIBEleDecZCumDaBIB"
+pl.savefig(figname,transparent=False, facecolor='white')
+
+
+# ### Posizione in Z degli elettroni (datasetEle)
+
+# In[10]:
+
+
+fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
+axs2b=axs[3].twinx() #Same x, but different y scale
+binWidthZ=0.2
+for datasetNumber, dataset in enumerate(datasetEleList):
+    print(datasetNumber)
+    nBinZ.append(int(((dataset["PosZEle"]/100).max()-(dataset["PosZEle"]/100).min())/binWidthZ))
+    plot1D(axs[0],dataset[dataset["NumPart"]>0]["PosZEle"]/100, weights=dataset[dataset["NumPart"]>0]["Weight"],bins=nBinZ[-1], plotTitle="PosZEle BIB", label=labelList[datasetNumber], xlabel='', ylabel='Arb. Units' )
+    axs[1].hist(dataset[dataset["NumPart"]>0]["PosZEle"]/100, weights=dataset[dataset["NumPart"]>0]["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=False)
+    histoCumAnorm.append(axs[2].hist(dataset[dataset["NumPart"]>0]["PosZEle"]/100, weights=dataset[dataset["NumPart"]>0]["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=True))
+    plot1D(axs[3],dataset[dataset["NumPart"]>0]["PosZEle"]/100, weights=dataset[dataset["NumPart"]>0]["Weight"],bins=nBinZ[-1], plotTitle="PosZEle BIB with Cumulatives", label=labelList[datasetNumber], xlabel='$z_{e }$ (m)', ylabel='Arb. Units' )
+    histoCumA=axs2b.hist(dataset[dataset["NumPart"]>0]["PosZEle"]/100, weights=dataset[dataset["NumPart"]>0]["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=False, linestyle=':')
+
+
+#axs[0].axis(ymin=100, ymax=1e9)
+axs[0].set_xlim(0,20)
+axs[0].grid(True, which="both", axis='y')
+axs[0].locator_params(axis="x", nbins=20)
+axs[2].grid(True, which="both")
+axs[2].set_title("Cumulative Function Norm")
+axs[2].legend(loc= "best", fontsize='x-small')
+
+axs[1].legend(loc= "best", fontsize='x-small')
+axs[1].set_title("Cumulative Function Not Norm")
+axs[1].grid(True, which="both")
+
+figname=runName+"BIBEleDecZCum"
+pl.savefig(figname,transparent=False, facecolor='white')
+
+
+# ### Posizione in Z del decadimento del Muone che ha originato BIB
+
+# In[11]:
 
 
 fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
@@ -550,12 +623,52 @@ axs[1].set_title("Cumulative Function Not Norm")
 axs[1].grid(True, which="both")
 
 figname=runName+"MuDecZ"
-pl.savefig(figname)
+pl.savefig(figname,transparent=False, facecolor='white')
+
+
+# ### Posizione di uscita della particella BIB in Z
+
+# In[48]:
+
+
+(datasetList[0]["PosZ"]/100).to_numpy().max()
+
+
+# In[ ]:
+
+
+fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
+axs2b=axs[3].twinx() #Same x, but different y scale
+binWidthZ=0.1
+for datasetNumber, dataset in enumerate(datasetList):
+    print(datasetNumber)
+    nBinZ.append(int(((dataset["PosZ"]/100).max()-(dataset["PosZ"]/100).min())/binWidthZ))
+    plot1D(axs[0],dataset["PosZ"]/100, weights=dataset["Weight"],bins=nBinZ[-1], plotTitle="Pos ZZ", label=labelList[datasetNumber], xlabel='', ylabel='Arb. Units' )
+    axs[1].hist(dataset["PosZ"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=False)
+    histoCumAnorm.append(axs[2].hist(dataset["PosZ"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=True))
+    plot1D(axs[3],dataset["PosZ"]/100, weights=dataset["Weight"],bins=nBinZ[-1], plotTitle="BIB Z exit with Cumulatives", label=labelList[datasetNumber], xlabel='$z$ (m)', ylabel='Arb. Units' )
+    histoCumA=axs2b.hist(dataset["PosZ"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=False, linestyle=':')
+
+
+#axs[0].axis(ymin=100, ymax=1e9)
+#axs[0].set_xlim(0,20)
+axs[0].grid(True, which="both", axis='y')
+axs[0].locator_params(axis="x", nbins=20)
+axs[2].grid(True, which="both")
+axs[2].set_title("Cumulative Function Norm")
+axs[2].legend(loc= "best", fontsize='x-small')
+
+axs[1].legend(loc= "best", fontsize='x-small')
+axs[1].set_title("Cumulative Function Not Norm")
+axs[1].grid(True, which="both")
+
+figname=runName+"BIBExitX"
+pl.savefig(figname,transparent=False, facecolor='white')
 
 
 # ### If Needed, let's apply a z-cut
 
-# In[8]:
+# In[12]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -573,7 +686,7 @@ for i, dataset in enumerate(datasetList):
 
 # ## List of found particles' IDs
 
-# In[9]:
+# In[13]:
 
 
 foundParticlesList=[]
@@ -585,7 +698,7 @@ foundParticlesUniqueEntries=[]
 
 # ### Creiamo una lista con tutte e sole le particelle che sono comparse in almeno un dataset
 
-# In[10]:
+# In[14]:
 
 
 for dataset in datasetList:
@@ -601,7 +714,7 @@ print("List of all (and unique) found particles in all datasets\n", foundParticl
 
 # ### Recupero i nomi di queste particelle
 
-# In[11]:
+# In[15]:
 
 
 unknownParticle="??"
@@ -621,7 +734,7 @@ print("List of all (and unique) found particles in all datasets\n", particleName
 
 # ### Per ogni particella, calcoliamo la frequenza con cui è comparsa in ciascun dataset
 
-# In[12]:
+# In[16]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -636,7 +749,7 @@ for i, dataset in enumerate(datasetList):
  #   print("Dataset {} - List of particles entries: {}\n\n".format(i, np.around(foundParticlesUniqueEntries[i],2)))
 
 
-# In[13]:
+# In[17]:
 
 
 foundParticlesUnique=[x for _,x in sorted(zip(foundParticlesUniqueEntries[0],foundParticlesUnique), reverse=True)]
@@ -645,12 +758,12 @@ for i in range(len(datasetList)-1,-1, -1):
     foundParticlesUniqueEntries[i]=[x for _,x in sorted(zip(foundParticlesUniqueEntries[0],foundParticlesUniqueEntries[i]), reverse=True)]
 
 
-# In[14]:
+# In[18]:
 
 
 fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(18,(len(datasetList)+1)*8))
 fig.suptitle(runName+"Particles Frequencies")
-width=0.4
+width=0.3
 for i, dataset in enumerate(datasetList):
     axs[i].bar(np.arange(len(foundParticlesUnique)), foundParticlesUniqueEntries[i], align='center', log=True, yerr=getParticlesNumbersErrors(dataset,nSlicesErrors), ecolor="blue", capsize=10)
 #    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
@@ -691,14 +804,15 @@ if len(datasetList)==2:
     tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
     
 else:
-    tempErr=0
     tempMatrix=np.asmatrix(foundParticlesUniqueEntries)
     lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()
+    tempErr=np.zeros(len(lastPlotData))
+
     lastPlotLabel="All Run RMS / Mean [%]"
     lastPlotTitle=lastPlotLabel
 axs[len(datasetList)+1].bar(np.arange(len(foundParticlesUnique)), lastPlotData, yerr=tempErr*100, align='center', log=False, label=labelList[i], capsize=10)
 axs[len(datasetList)+1].set_title(lastPlotTitle)
-axs[len(datasetList)+1].set_ylim(-100,100)
+axs[len(datasetList)+1].set_ylim(-200,200)
 axs[len(datasetList)+1].locator_params(axis="y", nbins=20)
 axs[len(datasetList)+1].grid(True, which="both")
 for j, v in enumerate(lastPlotData):
@@ -716,12 +830,12 @@ fig.subplots_adjust(top=0.93)
 fig.tight_layout()
 #plt.subplots_adjust(hspace = 0.1)
 figname=runName+"ParticleDistribution"
-pl.savefig(figname)
+pl.savefig(figname, transparent=False, facecolor='white')
 
 
 # ## Count Particle Numbers
 
-# In[15]:
+# In[19]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -743,7 +857,7 @@ for i, dataset in enumerate(datasetList):
 
 # ### All Relevant Particles Energy Spectra
 
-# In[16]:
+# In[20]:
 
 
 plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False)
@@ -752,7 +866,7 @@ plotAllEnergySpectra(datasetList, nbins=10000, logY=True, logX=True)
 
 # ### Photons and e+/e-
 
-# In[17]:
+# In[21]:
 
 
 xmax=np.percentile(getMomentum(datasetList[0],22,"KinE").to_numpy(),99.999) # Get rid of outliers
@@ -762,7 +876,7 @@ plotMomenta(datasetList=datasetList, particleList=[22, [11,-11]], particleLabel=
 
 # ### Hadrons
 
-# In[18]:
+# In[22]:
 
 
 plotMomenta(datasetList=datasetList, particleList=[2112, listChargedHadrons], particleLabel=["Neutrons","Ch. Had"], title="EneHad", nbins=nbinsH, figName="EneHadrons", xrange=[0,1])
@@ -770,17 +884,23 @@ plotMomenta(datasetList=datasetList, particleList=[2112, listChargedHadrons], pa
 
 # ## Plot Time Distributions
 
-# In[19]:
+# In[23]:
 
 
 plotDistribution(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="Time", xrange=(-30,100))
+
+
+# In[24]:
+
+
+plotDistribution(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="TimeLong", xrange=(-30,20000))
 
 
 # ## Plot Muons' Decay Position
 
 # ### Global
 
-# In[20]:
+# In[25]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -794,18 +914,24 @@ for i, dataset in enumerate(datasetList):
 plt.legend()
 #plt.ylim((100, 1e9))
 figname=runName+"MuDec"
-pl.savefig(figname)
+pl.savefig(figname,transparent=False, facecolor='white')
 
 
 # ### Per Particle
 
-# In[21]:
+# In[36]:
+
+
+plotDistribution(datasetList=datasetList, variable="PosZ", plotTitle="Pos Z Bib Exit", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ")
+
+
+# In[26]:
 
 
 plotDistribution(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
 
 
-# In[22]:
+# In[27]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -828,12 +954,12 @@ plt.xlabel('z (cm)',fontsize=14)
 #plt.ylabel('x (cm)',fontsize=14)
 
 figname=runName+"ZvsX_FLUKA"
-pl.savefig(figname)
+pl.savefig(figname,transparent=False, facecolor='white')
 
 
 # ## Parent Electron Plots
 
-# In[23]:
+# In[28]:
 
 
 if flagReadEle:
@@ -899,6 +1025,12 @@ if flagReadEle:
 
 else:
     print("Plots regarding parent electrons NOT requested")
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
