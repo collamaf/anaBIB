@@ -113,7 +113,7 @@ if flagReadEle:
 
 # ## Utility Functions
 
-# In[4]:
+# In[ ]:
 
 
 def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None, label3=""):
@@ -505,10 +505,10 @@ def plotSingleDistributionLongMomNozzle(datasetList, plotTitle="", xlabel="", yl
         ax[i].set_xlabel(xlabel,fontsize='14')
         ax[i].set_ylabel(ylabel,fontsize='14')
 
-        ax[i].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[i].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600],histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
         ax[i].set_title(labelList[i])
         ax[i].legend()
-        ax[len(datasetList)].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[len(datasetList)].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600],histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
      
     ax[len(datasetList)].set_title("Comparison")
     ax[len(datasetList)].legend()
@@ -528,11 +528,11 @@ def plotSingleDistributionTransMomNozzle(datasetList, plotTitle="", xlabel="", y
         ax[i].set_xlabel(xlabel,fontsize='14')
         ax[i].set_ylabel(ylabel,fontsize='14')
 
-        ax[i].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600]/1000
+        ax[i].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600]
                         ,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
         ax[i].set_title(labelList[i])
         ax[i].legend()
-        ax[len(datasetList)].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[len(datasetList)].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600],histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
      
     ax[len(datasetList)].set_title("Comparison")
     ax[len(datasetList)].legend()
@@ -554,12 +554,12 @@ def plotSingleDistributionBendingRadius(datasetList, plotTitle="", xlabel="", yl
         ax[i].set_xlabel(xlabel,fontsize='14')
         ax[i].set_ylabel(ylabel,fontsize='14')
 
-        ax[i].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]*1e6/qB,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[i].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]*1e9/qB,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
 
 
         ax[i].set_title(labelList[i])
         ax[i].legend()
-        ax[len(datasetList)].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]*1e6/qB,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[len(datasetList)].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]*1e9/qB,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
      
     ax[len(datasetList)].set_title("Comparison")
     ax[len(datasetList)].legend()
@@ -1018,7 +1018,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ## Parent Electron Plots
 
-# In[27]:
+# In[ ]:
 
 
 if flagReadEle:
