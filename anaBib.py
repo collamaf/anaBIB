@@ -55,10 +55,6 @@ else:
 #    inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_Liners_320k", "DigFiles/CV_3TeV_Liners13_110k","DigFiles/CV_3TeV_NozzleWidePipe_400k",]
     inputFilesList=["DigFiles/CV_3TeV_Norm_320k", "DigFiles/CV_3TeV_NozzleWidePipe_400k"]
 
-
-
-
-
     labelList=["Norm320k", "NozzleWP"]
 if args.runName:
     runName=args.runName+"_"
@@ -117,7 +113,7 @@ if flagReadEle:
 
 # ## Utility Functions
 
-# In[4]:
+# In[37]:
 
 
 def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None, label3=""):
@@ -498,6 +494,80 @@ rect_scatter = [left, bottom, width, height]
 rect_histx = [left, bottom + height + spacing, width, 0.2]
 rect_histy = [left + width + spacing, bottom, 0.2, height]
 
+def plotSingleDistributionLongMomNozzle(datasetList, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None, secondaryFlag=True):
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
+    plt.suptitle(runName+plotTitle)
+    for i, dataset in enumerate(datasetList):
+        if secondaryFlag:
+            dataset=dataset[dataset["NumPart"]>0]
+        else:
+            dataset=dataset[dataset["NumPart"]==0]
+        ax[i].set_xlabel(xlabel,fontsize='14')
+        ax[i].set_ylabel(ylabel,fontsize='14')
+
+        ax[i].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[i].set_title(labelList[i])
+        ax[i].legend()
+        ax[len(datasetList)].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+     
+    ax[len(datasetList)].set_title("Comparison")
+    ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
+    ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
+    figname=runName+figTitle
+    pl.savefig(figname,transparent=False, facecolor='white')
+    
+def plotSingleDistributionTransMomNozzle(datasetList, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None, secondaryFlag=True):
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
+    plt.suptitle(runName+plotTitle)
+    for i, dataset in enumerate(datasetList):
+        if secondaryFlag:
+            dataset=dataset[dataset["NumPart"]>0]
+        else:
+            dataset=dataset[dataset["NumPart"]==0]
+        ax[i].set_xlabel(xlabel,fontsize='14')
+        ax[i].set_ylabel(ylabel,fontsize='14')
+
+        ax[i].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600]/1000
+                        ,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[i].set_title(labelList[i])
+        ax[i].legend()
+        ax[len(datasetList)].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+     
+    ax[len(datasetList)].set_title("Comparison")
+    ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
+    ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
+    figname=runName+figTitle
+    pl.savefig(figname,transparent=False, facecolor='white')
+    
+        
+def plotSingleDistributionBendingRadius(datasetList, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None, secondaryFlag=True):
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
+    plt.suptitle(runName+plotTitle)
+    qB=1.071e9
+    for i, dataset in enumerate(datasetList):
+        if secondaryFlag:
+            dataset=dataset[dataset["NumPart"]>0]
+        else:
+            dataset=dataset[dataset["NumPart"]==0]
+        ax[i].set_xlabel(xlabel,fontsize='14')
+        ax[i].set_ylabel(ylabel,fontsize='14')
+
+        ax[i].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]*1e6/qB,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+
+
+        ax[i].set_title(labelList[i])
+        ax[i].legend()
+        ax[len(datasetList)].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+     
+    ax[len(datasetList)].set_title("Comparison")
+    ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
+    ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
+    figname=runName+figTitle
+    pl.savefig(figname,transparent=False, facecolor='white')
+
 
 # ## Read Datasets
 
@@ -517,7 +587,7 @@ for fileNumber, fileName in enumerate(inputFilesList):
 
 # ## Let's have a look at muon decay z position
 
-# In[8]:
+# In[6]:
 
 
 nBinZ=[]
@@ -527,7 +597,7 @@ histoCumAnorm=[]
 
 # ### Posizione in Z degli elettroni (datasetBIB)
 
-# In[9]:
+# In[7]:
 
 
 fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
@@ -560,13 +630,14 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 
 # ### Posizione in Z degli elettroni (datasetEle)
+# (È del tutto simile a quello sopra, solo che qui ogni elettrone conta una sola volta, anche se poi finisce per generare N tracce di BIB)
 
-# In[10]:
+# In[8]:
 
 
 fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
 axs2b=axs[3].twinx() #Same x, but different y scale
-binWidthZ=0.2
+binWidthZ=0.02
 for datasetNumber, dataset in enumerate(datasetEleList):
     print(datasetNumber)
     nBinZ.append(int(((dataset["PosZEle"]/100).max()-(dataset["PosZEle"]/100).min())/binWidthZ))
@@ -578,7 +649,7 @@ for datasetNumber, dataset in enumerate(datasetEleList):
 
 
 #axs[0].axis(ymin=100, ymax=1e9)
-axs[0].set_xlim(0,20)
+axs[0].set_xlim(-2,20)
 axs[0].grid(True, which="both", axis='y')
 axs[0].locator_params(axis="x", nbins=20)
 axs[2].grid(True, which="both")
@@ -595,7 +666,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Posizione in Z del decadimento del Muone che ha originato BIB
 
-# In[11]:
+# In[9]:
 
 
 fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
@@ -628,13 +699,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Posizione di uscita della particella BIB in Z
 
-# In[48]:
-
-
-(datasetList[0]["PosZ"]/100).to_numpy().max()
-
-
-# In[ ]:
+# In[10]:
 
 
 fig, axs = plt.subplots(nrows=4, ncols=1, figsize=(10,12), sharex=True)
@@ -668,7 +733,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### If Needed, let's apply a z-cut
 
-# In[12]:
+# In[11]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -686,7 +751,7 @@ for i, dataset in enumerate(datasetList):
 
 # ## List of found particles' IDs
 
-# In[13]:
+# In[12]:
 
 
 foundParticlesList=[]
@@ -698,7 +763,7 @@ foundParticlesUniqueEntries=[]
 
 # ### Creiamo una lista con tutte e sole le particelle che sono comparse in almeno un dataset
 
-# In[14]:
+# In[13]:
 
 
 for dataset in datasetList:
@@ -714,7 +779,7 @@ print("List of all (and unique) found particles in all datasets\n", foundParticl
 
 # ### Recupero i nomi di queste particelle
 
-# In[15]:
+# In[14]:
 
 
 unknownParticle="??"
@@ -734,7 +799,7 @@ print("List of all (and unique) found particles in all datasets\n", particleName
 
 # ### Per ogni particella, calcoliamo la frequenza con cui è comparsa in ciascun dataset
 
-# In[16]:
+# In[15]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -749,7 +814,7 @@ for i, dataset in enumerate(datasetList):
  #   print("Dataset {} - List of particles entries: {}\n\n".format(i, np.around(foundParticlesUniqueEntries[i],2)))
 
 
-# In[17]:
+# In[16]:
 
 
 foundParticlesUnique=[x for _,x in sorted(zip(foundParticlesUniqueEntries[0],foundParticlesUnique), reverse=True)]
@@ -758,7 +823,7 @@ for i in range(len(datasetList)-1,-1, -1):
     foundParticlesUniqueEntries[i]=[x for _,x in sorted(zip(foundParticlesUniqueEntries[0],foundParticlesUniqueEntries[i]), reverse=True)]
 
 
-# In[18]:
+# In[17]:
 
 
 fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(18,(len(datasetList)+1)*8))
@@ -835,7 +900,7 @@ pl.savefig(figname, transparent=False, facecolor='white')
 
 # ## Count Particle Numbers
 
-# In[19]:
+# In[18]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -857,7 +922,7 @@ for i, dataset in enumerate(datasetList):
 
 # ### All Relevant Particles Energy Spectra
 
-# In[20]:
+# In[19]:
 
 
 plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False)
@@ -866,7 +931,7 @@ plotAllEnergySpectra(datasetList, nbins=10000, logY=True, logX=True)
 
 # ### Photons and e+/e-
 
-# In[21]:
+# In[20]:
 
 
 xmax=np.percentile(getMomentum(datasetList[0],22,"KinE").to_numpy(),99.999) # Get rid of outliers
@@ -876,7 +941,7 @@ plotMomenta(datasetList=datasetList, particleList=[22, [11,-11]], particleLabel=
 
 # ### Hadrons
 
-# In[22]:
+# In[29]:
 
 
 plotMomenta(datasetList=datasetList, particleList=[2112, listChargedHadrons], particleLabel=["Neutrons","Ch. Had"], title="EneHad", nbins=nbinsH, figName="EneHadrons", xrange=[0,1])
@@ -884,23 +949,17 @@ plotMomenta(datasetList=datasetList, particleList=[2112, listChargedHadrons], pa
 
 # ## Plot Time Distributions
 
-# In[23]:
+# In[28]:
 
 
 plotDistribution(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="Time", xrange=(-30,100))
-
-
-# In[24]:
-
-
-plotDistribution(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="TimeLong", xrange=(-30,20000))
 
 
 # ## Plot Muons' Decay Position
 
 # ### Global
 
-# In[25]:
+# In[30]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -919,19 +978,19 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Per Particle
 
-# In[36]:
+# In[31]:
 
 
 plotDistribution(datasetList=datasetList, variable="PosZ", plotTitle="Pos Z Bib Exit", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ")
 
 
-# In[26]:
+# In[32]:
 
 
 plotDistribution(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
 
 
-# In[27]:
+# In[33]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -959,7 +1018,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ## Parent Electron Plots
 
-# In[28]:
+# In[38]:
 
 
 if flagReadEle:
@@ -971,6 +1030,17 @@ if flagReadEle:
 
     plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore Bib", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore",secondaryFlag=True)
     plotSingleDistribution(datasetList=datasetEleList, variable="CZ", plotTitle="CZ Elettrone Genitore NoBib", xlabel="cos(z) ", ylabel="Arb. Units", nbins=40, log=True, figTitle="CZElGenitore",secondaryFlag=False)
+
+    plotSingleDistributionLongMomNozzle(datasetList=datasetEleList, plotTitle="Longitudinal Momentum In Nozzle Bib", xlabel="P [GeV] ", ylabel="Arb. Units", nbins=60, log=True, figTitle="LongMomNozzleBib",secondaryFlag=True)
+    plotSingleDistributionLongMomNozzle(datasetList=datasetEleList, plotTitle="Longitudinal Momentum In Nozzle NoBib", xlabel="P [GeV] ", ylabel="Arb. Units", nbins=60, log=True, figTitle="LongMomNozzleNoBib",secondaryFlag=False)
+
+    plotSingleDistributionTransMomNozzle(datasetList=datasetEleList, plotTitle="Transverse Momentum In Nozzle Bib", xlabel="P [GeV] ", ylabel="Arb. Units", nbins=60, log=True, figTitle="TransMomNozzleBib",secondaryFlag=True)
+    plotSingleDistributionTransMomNozzle(datasetList=datasetEleList, plotTitle="Transverse Momentum In Nozzle NoBib", xlabel="P [GeV] ", ylabel="Arb. Units", nbins=60, log=True, figTitle="TransMomNozzleNoBib",secondaryFlag=False)
+
+    plotSingleDistributionBendingRadius(datasetList=datasetEleList, plotTitle="Bending Radius in B Bib", xlabel="r [m] ", ylabel="Arb. Units", nbins=60, log=True, figTitle="BendRadBib",secondaryFlag=True)
+    plotSingleDistributionBendingRadius(datasetList=datasetEleList, plotTitle="Bending Radius in B NoBib", xlabel="r [m] ", ylabel="Arb. Units", nbins=60, log=True, figTitle="BendRadNoBib",secondaryFlag=False)
+
+
 
     plotSingleDistribution2D(datasetList=datasetEleList, variableX="EneEle", variableY="PosZmu", plotTitle="Elettrone Genitore Ene vs PosZmu Bib", 
                              xlabel="E$_{e}$ [GeV]", ylabel="$z_{\mu}$ [m]", nbins=nbins*2, log=True, 
@@ -1019,18 +1089,12 @@ if flagReadEle:
 
     plotEleDistrWithCut(dataset=datasetEleList[0],variable="CZ", cutVariable="EneEle", cutCenter=500, cutRange=[500, 450,100, 50, 10],nbins=100, log=True, xlabel="cos(z)", figname="CZCutOnEneEle")
 
-    plotEleDistrWithCut(dataset=datasetEleList[0],variable="EneEle", cutVariable="EneEle", cutCenter=500, cutRange=[500,100, 50, 10],nbins=100, log=True, xlabel="cos(x)", figname="EnEleCutOnEneEle")
+    plotEleDistrWithCut(dataset=datasetEleList[0],variable="EneEle", cutVariable="EneEle", cutCenter=500, cutRange=[500,100, 50, 10],nbins=100, log=True, xlabel="E [GeV]", figname="EnEleCutOnEneEle")
 
 
 
 else:
     print("Plots regarding parent electrons NOT requested")
-
-
-# In[ ]:
-
-
-
 
 
 # In[ ]:
