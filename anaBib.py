@@ -113,7 +113,7 @@ if flagReadEle:
 
 # ## Utility Functions
 
-# In[37]:
+# In[4]:
 
 
 def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None, label3=""):
@@ -559,7 +559,7 @@ def plotSingleDistributionBendingRadius(datasetList, plotTitle="", xlabel="", yl
 
         ax[i].set_title(labelList[i])
         ax[i].legend()
-        ax[len(datasetList)].hist(np.sqrt( dataset["CX"][dataset["PosZEle"]<600]**2 + dataset["CY"][dataset["PosZEle"]<600]**2)*dataset["EneEle"][dataset["PosZEle"]<600]/1000,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
+        ax[len(datasetList)].hist(-dataset["CZ"][dataset["PosZEle"]<600]*dataset["EneEle"][dataset["PosZEle"]<600]*1e6/qB,histtype='step', bins=nbins, weights=dataset["Weight"][dataset["PosZEle"]<600], log=log, range=xrange, label=labelList[i])
      
     ax[len(datasetList)].set_title("Comparison")
     ax[len(datasetList)].legend()
@@ -941,7 +941,7 @@ plotMomenta(datasetList=datasetList, particleList=[22, [11,-11]], particleLabel=
 
 # ### Hadrons
 
-# In[29]:
+# In[21]:
 
 
 plotMomenta(datasetList=datasetList, particleList=[2112, listChargedHadrons], particleLabel=["Neutrons","Ch. Had"], title="EneHad", nbins=nbinsH, figName="EneHadrons", xrange=[0,1])
@@ -949,7 +949,7 @@ plotMomenta(datasetList=datasetList, particleList=[2112, listChargedHadrons], pa
 
 # ## Plot Time Distributions
 
-# In[28]:
+# In[22]:
 
 
 plotDistribution(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="Time", xrange=(-30,100))
@@ -959,7 +959,7 @@ plotDistribution(datasetList=datasetList, variable="Time", plotTitle="Time Distr
 
 # ### Global
 
-# In[30]:
+# In[23]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -978,19 +978,19 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Per Particle
 
-# In[31]:
+# In[24]:
 
 
 plotDistribution(datasetList=datasetList, variable="PosZ", plotTitle="Pos Z Bib Exit", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ")
 
 
-# In[32]:
+# In[25]:
 
 
 plotDistribution(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
 
 
-# In[33]:
+# In[26]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1018,7 +1018,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ## Parent Electron Plots
 
-# In[38]:
+# In[27]:
 
 
 if flagReadEle:
