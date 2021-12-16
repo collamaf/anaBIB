@@ -112,7 +112,7 @@ if flagReadEle:
 
 # ## Utility Functions
 
-# In[4]:
+# In[46]:
 
 
 def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None, label3=""):
@@ -262,9 +262,9 @@ def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xla
 
         temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label="$\gamma$")
         ax[i].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label="e+e-")
-        ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
+        #ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
         ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label="Neutrons")
-        ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
+        #ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
 
 
         if i==0:
@@ -281,9 +281,9 @@ def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xla
 
         ax[len(datasetList)].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label=labelList[i]+" $\gamma$")
         ax[len(datasetList)].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label=labelList[i]+" e+e-")
-        ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
+        #ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
         ax[len(datasetList)].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label=labelList[i]+" Neutrons")
-        ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
+        #ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
 
         if ymax!=None:
             ax[len(datasetList)].axis(ymin=1e2, ymax=ymax)
@@ -302,9 +302,6 @@ def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xla
     pl.savefig(figname,transparent=False, facecolor='white')
         
 
-
-
-        
 def plotMomenta(datasetList, particleList, particleLabel, title, xlabel="p [GeV/c]", ylabel="Arb. Units", nbins=nbins, log=True, figName="", xrange=None, ymax=None):
     fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
     plt.suptitle(title)
@@ -990,10 +987,10 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Per Particle
 
-# In[23]:
+# In[47]:
 
 
-plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ")
+plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ", xrange=[-200,200])
 
 
 # In[24]:
@@ -1002,7 +999,7 @@ plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", pl
 plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
 
 
-# In[47]:
+# In[49]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1010,7 +1007,7 @@ plt.suptitle(runName+"Nozzle")
 if len(datasetList)>1:
     for i, dataset in enumerate(datasetList):
         ax[i].set_title(labelList[i])
-        ax[i].hist2d(dataset["PosZ"],dataset["PosX"],norm=matplotlib.colors.LogNorm(),bins=500, range=([-800,800],[-250,250]), cmap='plasma')
+        ax[i].hist2d(dataset["PosZ"],dataset["PosX"],norm=matplotlib.colors.LogNorm(),bins=500, range=([-800,800],[-250,250]), cmap='plasma', vmin=1, vmax=1e5)
         ax[i].axis(xmin=-800, xmax=800)
         ax[i].axis(ymin=-250, ymax=250)
         ax[i].set_ylabel('x [cm]',fontsize=14)
@@ -1031,9 +1028,38 @@ figname=runName+"ZvsX_FLUKA"
 pl.savefig(figname,transparent=False, facecolor='white')
 
 
+# In[51]:
+
+
+fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
+plt.suptitle(runName+"Nozzle")
+if len(datasetList)>1:
+    for i, dataset in enumerate(datasetList):
+        ax[i].set_title(labelList[i])
+        ax[i].hist2d(dataset["PosZ"],dataset["PosX"],norm=matplotlib.colors.LogNorm(),bins=500, range=([-80,80],[-25,25]), cmap='plasma', vmin=1, vmax=1e5)
+        ax[i].axis(xmin=-80, xmax=80)
+        ax[i].axis(ymin=-25, ymax=25)
+        ax[i].set_ylabel('x [cm]',fontsize=14)
+        PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+        cb=plt.colorbar(PCM, ax=ax[i]) 
+        cb.set_label('Arb. Units')
+else:
+    ax.set_title(labelList[i])
+    ax.hist2d(dataset["PosZ"],dataset["PosX"],norm=matplotlib.colors.LogNorm(),bins=500, range=([-80,80],[-25,25]), cmap='plasma')
+    ax.axis(xmin=-80, xmax=80)
+    ax.axis(ymin=-25, ymax=25)
+    ax.set_ylabel('x [cm]',fontsize=14)
+    
+plt.xlabel('z (cm)',fontsize=14)
+#plt.ylabel('x (cm)',fontsize=14)
+
+figname=runName+"ZvsX_FLUKAZoom"
+pl.savefig(figname,transparent=False, facecolor='white')
+
+
 # ### Theta vs E for BIB electrons
 
-# In[48]:
+# In[26]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1063,9 +1089,17 @@ figname="ThetaVsE"
 pl.savefig(figname,transparent=False, facecolor='white')   
 
 
+# In[42]:
+
+
+plotSingleVariable2D(datasetList=datasetList, variableX="PosZFI", variableY="PosZ", plotTitle="Parent Electron First Interaction vs Z Exit Bib", 
+                                 xlabel="Z$_{e}$ [cm]", ylabel="Z [cm]", nbins=nbins*2, log=True, 
+                                 figTitle="ZFIvsZBib", range=[[-300, 1500], [-300, 800]], hasBIB=-1)
+
+
 # ## Parent Electron Plots
 
-# In[40]:
+# In[27]:
 
 
 if flagReadEle:
