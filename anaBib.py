@@ -97,6 +97,7 @@ enCutChHad=0.1e-3
 enCutMu=0.1e-3
 
 zCut=2500. #in cm
+timeCut=(-1,15) #in ns
 
 
 # In[3]:
@@ -208,10 +209,11 @@ def getParticlesNumbersErrors(dataset, nSlices):
         df_temp=df_temp.reset_index(drop=True)
         dfs[n]=df_temp
         for iPart, particle in enumerate(foundParticlesUnique):
-           # print(n,particle,sum(df_temp[df_temp["PDGcode"]==particle]["Weight"]))
+            #print(n,particle,sum(df_temp[df_temp["PDGcode"]==particle]["Weight"]))
             numPartSlices[n, iPart]=sum(df_temp[df_temp["PDGcode"]==particle]["Weight"])
     errPartSlices=numPartSlices.std(0)*nSlices
     #print(errPartSlices[iDataset])
+    #print("\n", errPartSlices)
     return errPartSlices
         
 def drawPie2(var, figName, bFlag=False, title=""):
@@ -842,6 +844,7 @@ foundParticlesFreqList=[]
 foundParticlesUnique=set([])
 foundParticlesUniqueFreq=[]
 foundParticlesUniqueEntries=[]
+foundParticlesUniqueEntriesTimeCut=[]
 
 
 # ### Let's start by creating a list with all and only the particles that appeared in at least a dataset
@@ -889,25 +892,38 @@ print("Their Names\n", particleNamesList)
 
 for i, dataset in enumerate(datasetList):
     foundParticlesUniqueEntries.append([]) # Aggiungo una lista nuova (e vuota) per ciascun dataset
+    foundParticlesUniqueEntriesTimeCut.append([])
     for particle in foundParticlesUnique: # Giro su tutte le particelle della lista univoca
         if not dataset[dataset["PDGcode"]==particle].empty: # Se in questo dataset quela particella è comparsa ne calcolo il peso
             foundParticlesUniqueEntries[i].append(sum(dataset[dataset["PDGcode"]==particle]["Weight"]))
+            foundParticlesUniqueEntriesTimeCut[i].append(sum(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1]) & (dataset["PDGcode"]==particle)]["Weight"]))
         else:
             foundParticlesUniqueEntries[i].append(0)
+            foundParticlesUniqueEntriesTimeCut[i].append(0)
 
 
 # In[17]:
 
 
-foundParticlesUnique=[x for _,x in sorted(zip(foundParticlesUniqueEntries[0],foundParticlesUnique), reverse=True)]
-particleNamesList=[x for _,x in sorted(zip(foundParticlesUniqueEntries[0],particleNamesList), reverse=True)]
+temp=foundParticlesUniqueEntries[0]
+foundParticlesUnique=[x for _,x in sorted(zip(temp,foundParticlesUnique), reverse=True)]
+particleNamesList=[x for _,x in sorted(zip(temp,particleNamesList), reverse=True)]
 for i in range(len(datasetList)-1,-1, -1):
-    foundParticlesUniqueEntries[i]=[x for _,x in sorted(zip(foundParticlesUniqueEntries[0],foundParticlesUniqueEntries[i]), reverse=True)]
+    foundParticlesUniqueEntries[i]=[x for _,x in sorted(zip(temp,foundParticlesUniqueEntries[i]), reverse=True)]
+    foundParticlesUniqueEntriesTimeCut[i]=[x for _,x in sorted(zip(temp,foundParticlesUniqueEntriesTimeCut[i]), reverse=True)]
+
+
+# In[18]:
+
+
+print(foundParticlesUniqueEntries)
+print()
+print(foundParticlesUniqueEntriesTimeCut)
 
 
 # ### Let's plot all particles' frequencies
 
-# In[18]:
+# In[19]:
 
 
 if flagAllPlots:
@@ -983,12 +999,88 @@ if flagAllPlots:
     pl.savefig(figname, transparent=False, facecolor='white')
 
 
-# In[19]:
+# In[23]:
 
 
-fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(8,(len(datasetList)+1)*8))
+fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(12,(len(datasetList)+1)*8))
+fig.suptitle(runName+"Particles Frequencies Time Cut  tmin={} [ns] tmax={} [ns]".format(timeCut[0],timeCut[1]))
+width=0.4
+for i, dataset in enumerate(datasetList):
+    axs[i].bar(np.arange(4), foundParticlesUniqueEntriesTimeCut[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], ecolor="blue", capsize=10)
+#    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
+
+    axs[i].set_title(labelList[i]) 
+    plt.sca(axs[i])
+    plt.xticks(range(4), particleNamesList[:4], size='large')
+    plt.xticks(rotation=90)
+    plt.ylabel("Occurency", size='large')
+    
+    for j, v in enumerate(foundParticlesUniqueEntriesTimeCut[i][:4]):
+        if v!=0:
+            axs[i].text(j , v, "{:.2e}".format(v))
+            axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*1.2, "{:.2e}".format(v))
+            #axs[len(datasetList)].text(j , v, "{:.2e}".format(v), color="tab:blue")
+            
+    axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntriesTimeCut[i][:4],width=width, ecolor="blue" , align='center',yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], log=True, label=labelList[i], alpha=1, capsize=10)
+    axs[len(datasetList)].set_title('Comparison')
+    plt.sca(axs[len(datasetList)])
+    plt.xticks(np.arange(4)+i*width/2, particleNamesList[:4], size='large')
+    plt.xticks(rotation=90)
+    plt.ylabel("Occurency", size='large')
+    plt.legend()
+    
+if len(datasetList)==2:
+    temp=(np.array(foundParticlesUniqueEntriesTimeCut[1][:4])-np.array(foundParticlesUniqueEntriesTimeCut[0][:4]))/np.array(foundParticlesUniqueEntriesTimeCut[0][:4])*100
+    lastPlotData=np.array(foundParticlesUniqueEntriesTimeCut[1][:4])-np.array(foundParticlesUniqueEntriesTimeCut[0][:4])
+    lastPlotData=np.where(np.isinf(temp), 0, temp)
+
+    lastPlotLabel="Difference [%]"
+    lastPlotTitle=lastPlotLabel +"{}-{}".format(labelList[1],labelList[0])
+    tempA=np.array(foundParticlesUniqueEntriesTimeCut[1][:4])
+    tempAerr=getParticlesNumbersErrors(datasetList[1],nSlicesErrors)[:4]
+    tempB=np.array(foundParticlesUniqueEntriesTimeCut[0][:4])
+    tempBerr=getParticlesNumbersErrors(datasetList[0],nSlicesErrors)[:4]
+    tempC=tempB
+    tempCerr=tempBerr
+    tempTotErr=np.sqrt(np.power(1/tempC,2)*np.power(tempAerr,2) + np.power(1/tempC,2)* np.power(tempBerr,2) + np.power((tempA-tempB)/np.power(tempC,2),2)*np.power(tempCerr,2) )
+    tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
+    
+else:
+    tempMatrix=np.asmatrix(foundParticlesUniqueEntriesTimeCut)
+    lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()
+    tempErr=np.zeros(len(lastPlotData))
+
+    lastPlotLabel="All Run RMS / Mean [%]"
+    lastPlotTitle=lastPlotLabel
+axs[len(datasetList)+1].bar(np.arange(4), lastPlotData, yerr=tempErr*100, align='center', log=False, label=labelList[i], capsize=10)
+axs[len(datasetList)+1].set_title(lastPlotTitle)
+axs[len(datasetList)+1].set_ylim(-200,200)
+axs[len(datasetList)+1].locator_params(axis="y", nbins=20)
+axs[len(datasetList)+1].grid(True, which="both")
+for j, v in enumerate(lastPlotData):
+    if v!=0 and tempErr[j]*100<100:
+        axs[len(datasetList)+1].text(j , v, "{:.1f}$\pm${:.1f}".format(v,tempErr[j]*100))
+
+
+plt.sca(axs[len(datasetList)+1])
+plt.xticks(range(4), particleNamesList[:4], size='large')
+plt.xticks(rotation=90)
+plt.ylabel(lastPlotLabel, size='large')
+
+
+fig.subplots_adjust(top=0.93)
+fig.tight_layout()
+#plt.subplots_adjust(hspace = 0.1)
+figname=runName+"ParticleDistributionTimeCut"
+pl.savefig(figname, transparent=False, facecolor='white')
+
+
+# In[21]:
+
+
+fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(12,(len(datasetList)+1)*8))
 fig.suptitle(runName+"Particles Frequencies")
-width=0.3
+width=0.4
 for i, dataset in enumerate(datasetList):
     axs[i].bar(np.arange(4), foundParticlesUniqueEntries[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], ecolor="blue", capsize=10)
 #    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
@@ -1002,6 +1094,7 @@ for i, dataset in enumerate(datasetList):
     for j, v in enumerate(foundParticlesUniqueEntries[i][:4]):
         if v!=0:
             axs[i].text(j , v, "{:.2e}".format(v))
+            axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*1.2, "{:.2e}".format(v))
             #axs[len(datasetList)].text(j , v, "{:.2e}".format(v), color="tab:blue")
             
     axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntries[i][:4],width=width, ecolor="blue" , align='center',yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], log=True, label=labelList[i], alpha=1, capsize=10)
@@ -1060,7 +1153,7 @@ pl.savefig(figname, transparent=False, facecolor='white')
 
 # ## Count Particle Numbers
 
-# In[20]:
+# In[34]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -1082,7 +1175,7 @@ for i, dataset in enumerate(datasetList):
 
 # ### All Relevant Particles Energy Spectra
 
-# In[21]:
+# In[35]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1129,13 +1222,13 @@ figname=runName+"Lethargy"
 pl.savefig(figname)
 
 
-# In[22]:
+# In[ ]:
 
 
 #plotLethargy(datasetList, nbins=nbins, logY=True, logX=False)
 
 
-# In[23]:
+# In[ ]:
 
 
 if flagAllPlots:
@@ -1143,7 +1236,7 @@ if flagAllPlots:
     plotAllEnergySpectra(datasetList, nbins=10000, logY=True, logX=True)
 
 
-# In[24]:
+# In[ ]:
 
 
 ### Photons and e+/e-
@@ -1156,7 +1249,7 @@ if flagAllPlots:
 
 # ## Plot Time Distributions
 
-# In[25]:
+# In[ ]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1203,7 +1296,7 @@ figname=runName+"Time"
 pl.savefig(figname)
 
 
-# In[26]:
+# In[ ]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="Time", xrange=(-30,100))
@@ -1213,7 +1306,7 @@ pl.savefig(figname)
 
 # ### Global
 
-# In[27]:
+# In[ ]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -1232,7 +1325,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Per Particle
 
-# In[28]:
+# In[ ]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1279,7 +1372,7 @@ figname=runName+"PosZ"
 pl.savefig(figname)
 
 
-# In[29]:
+# In[ ]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1326,7 +1419,7 @@ figname=runName+"PosZ_zoom"
 pl.savefig(figname)
 
 
-# In[30]:
+# In[ ]:
 
 
 tmin=-1.
@@ -1375,19 +1468,19 @@ figname=runName+"PosZ_zoom_timecut"
 pl.savefig(figname)
 
 
-# In[31]:
+# In[ ]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ", xrange=[-200,200])
 
 
-# In[32]:
+# In[ ]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ_timecut", xrange=[-200,200],trange=[-1,15])
 
 
-# In[33]:
+# In[ ]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1434,7 +1527,7 @@ figname=runName+"PosZmu"
 pl.savefig(figname)
 
 
-# In[34]:
+# In[ ]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
@@ -1442,7 +1535,7 @@ pl.savefig(figname)
 
 # ### Z vs x
 
-# In[35]:
+# In[ ]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1471,7 +1564,7 @@ figname=runName+"ZvsX_FLUKA"
 pl.savefig(figname,transparent=False, facecolor='white')
 
 
-# In[36]:
+# In[ ]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1502,7 +1595,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Theta vs E for BIB electrons
 
-# In[37]:
+# In[ ]:
 
 
 if flagAllPlots:
@@ -1533,7 +1626,7 @@ if flagAllPlots:
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[38]:
+# In[ ]:
 
 
 plotSingleVariable2D(datasetList=datasetList, variableX="PosZFI", variableY="PosZ", plotTitle="Parent Electron First Interaction vs Z Exit Bib", 
@@ -1543,7 +1636,7 @@ plotSingleVariable2D(datasetList=datasetList, variableX="PosZFI", variableY="Pos
 
 # ## Parent Electron Plots
 
-# In[39]:
+# In[ ]:
 
 
 if flagReadEle:
