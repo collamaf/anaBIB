@@ -57,12 +57,20 @@ if args.fileList:
     inputFilesList=args.fileList
     labelList=args.labelList
 else:
+    #inputFilesList=["../Dump_new/MARSresults/MARS1e5TeVmupiu", "../Dump_new/MARSresults/MARS1e5TeVmumeno"]
+    #inputFilesList=["local_data/PR_3TeV_real", "local_data/PR_3TeV_real_ok"]
+    #inputFilesList=["local_data/NEW_1e5TeV_base_point", "../Dump_new/MARSresults/MARS1e5TeVmumeno"]
     inputFilesList=["local_data/CV_1e5TeV_base_SMALL", "local_data/CV_3TeV_base_SMALL"]
-
+    #labelList=["MARS+", "MARS-"]
+    #labelList=["FLUKA3TeVreal", "FLUKA3TeVreal"]
+    #labelList=["FLUKA", "MARS"]
     labelList=["1.5TeV", "3TeV"]
 if args.runName:
     runName=args.runName+"_"
 else:
+    #runName="1e5TeVMARS+vsMARS-_"
+    #runName="FLUKA3TeVrealvsFLUKA3TeVreal_"
+    #runName="1e5TeV_FLUKAvsMARS_"
     runName="1e5vs3_"
 
 print("Leggo Files: ", inputFilesList, flagReadEle)
@@ -1089,41 +1097,41 @@ fig=plt.figure(figsize=(14,5))
 plt.suptitle("Lethargy plot")
 plt.subplot(1, 3, 1)
 plt.gca().set_title(labelList[0])
-plt.hist(np.log(getInfo(datasetList[0],22,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[0],11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[0],-11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[0],2112,"KinE")),histtype='step', range=[-23,0], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
+plt.hist(np.log(getInfo(datasetList[0],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
+plt.hist(np.log(getInfo(datasetList[0],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
+plt.hist(np.log(getInfo(datasetList[0],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
+plt.hist(np.log(getInfo(datasetList[0],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
 plt.xlabel('log(E$_{kin}$) (GeV)',fontsize=14)
 plt.ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
 plt.yscale('log')
 plt.legend(loc= 'upper left')
-plt.ylim((1e2,1e7))
+plt.ylim((1e2,3e7))
 plt.subplot(1, 3, 2)
 plt.gca().set_title(labelList[1])
-plt.hist(np.log(getInfo(datasetList[1],22,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[1],11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[1],-11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[1],2112,"KinE")),histtype='step', range=[-23,0], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
+plt.hist(np.log(getInfo(datasetList[1],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
+plt.hist(np.log(getInfo(datasetList[1],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
+plt.hist(np.log(getInfo(datasetList[1],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
+plt.hist(np.log(getInfo(datasetList[1],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
 plt.xlabel('log(E$_{kin}$) (GeV)',fontsize=14)
 plt.ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
 plt.yscale('log')
 plt.legend(loc= 'upper left')
-plt.ylim((1e2,1e7))
+plt.ylim((1e2,3e7))
 plt.subplot(1, 3, 3)
 plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist(np.log(getInfo(datasetList[1],22,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[1],11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[1],-11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[1],2112,"KinE")),histtype='step', range=[-23,0], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.hist(np.log(getInfo(datasetList[0],22,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[0],11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[0],-11,"KinE")),histtype='step',range=[-23,0], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[0],2112,"KinE")),histtype='step', range=[-23,0], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
+plt.hist(np.log(getInfo(datasetList[1],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
+plt.hist(np.log(getInfo(datasetList[1],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
+plt.hist(np.log(getInfo(datasetList[1],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
+plt.hist(np.log(getInfo(datasetList[1],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
+plt.hist(np.log(getInfo(datasetList[0],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
+plt.hist(np.log(getInfo(datasetList[0],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
+plt.hist(np.log(getInfo(datasetList[0],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
+plt.hist(np.log(getInfo(datasetList[0],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
 plt.xlabel('log(E$_{kin}$) (GeV)',fontsize=14)
 plt.ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
 plt.yscale('log')
 #plt.legend(loc= 'upper left')
-plt.ylim((1e2,1e7))
+plt.ylim((1e2,3e7))
 fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
 figname=runName+"Lethargy"
 pl.savefig(figname)
@@ -1167,7 +1175,7 @@ plt.hist(getInfo(datasetList[0],22,"Time"),histtype='step',range=[-25,100], weig
 plt.hist(getInfo(datasetList[0],11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
 plt.hist(getInfo(datasetList[0],-11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
 plt.hist(getInfo(datasetList[0],2112,"Time"),histtype='step', range=[-25,100], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('t(ns)',fontsize=14)
+plt.xlabel('t (ns)',fontsize=14)
 plt.ylabel('dN/dt',fontsize=14)
 plt.yscale('log')
 plt.legend(loc= 'upper right')
@@ -1178,7 +1186,7 @@ plt.hist(getInfo(datasetList[1],22,"Time"),histtype='step',range=[-25,100], weig
 plt.hist(getInfo(datasetList[1],11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
 plt.hist(getInfo(datasetList[1],-11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
 plt.hist(getInfo(datasetList[1],2112,"Time"),histtype='step', range=[-25,100], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('t(ns)',fontsize=14)
+plt.xlabel('t (ns)',fontsize=14)
 plt.ylabel('dN/dt',fontsize=14)
 plt.yscale('log')
 plt.legend(loc= 'upper right')
@@ -1193,7 +1201,7 @@ plt.hist( getInfo(datasetList[1],22,"Time"),histtype='step',range=[-25,100], wei
 plt.hist( getInfo(datasetList[1],11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
 plt.hist( getInfo(datasetList[1],-11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
 plt.hist( getInfo(datasetList[1],2112,"Time"),histtype='step', range=[-25,100], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('t(ns)',fontsize=14)
+plt.xlabel('t (ns)',fontsize=14)
 plt.ylabel('dN/dt',fontsize=14)
 plt.yscale('log')
 #plt.legend(loc= 'upper left')
@@ -1329,7 +1337,7 @@ pl.savefig(figname)
 # In[30]:
 
 
-tmin=-1.
+tmin=-15.
 tmax=15.
 fig=plt.figure(figsize=(14,5))
 plt.suptitle("Z exit"+str.format(' tmin={} [ns] tmax={} [ns]', tmin,tmax))
@@ -1394,10 +1402,10 @@ fig=plt.figure(figsize=(14,5))
 plt.suptitle("z$_{\mu}$ decay")
 plt.subplot(1, 3, 1)
 plt.gca().set_title(labelList[0])
-plt.hist(getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-1,100], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
+plt.hist(getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
+plt.hist(getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
+plt.hist(getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
+plt.hist(getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
 plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
 plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
 plt.yscale('log')
@@ -1405,10 +1413,10 @@ plt.legend(loc= 'upper right')
 plt.ylim((1e2,2e7))
 plt.subplot(1, 3, 2)
 plt.gca().set_title(labelList[1])
-plt.hist(getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
-plt.hist(getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
-plt.hist(getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-1,100], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
+plt.hist(getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
+plt.hist(getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
+plt.hist(getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
+plt.hist(getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
 plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
 plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
 plt.yscale('log')
@@ -1416,14 +1424,14 @@ plt.legend(loc= 'upper right')
 plt.ylim((1e2,2e7))
 plt.subplot(1, 3, 3)
 plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist( getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist( getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist( getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-1,100], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
-plt.hist( getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
-plt.hist( getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-1,100], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
-plt.hist( getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-1,100], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
+plt.hist( getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
+plt.hist( getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
+plt.hist( getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
+plt.hist( getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
+plt.hist( getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
+plt.hist( getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
+plt.hist( getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
+plt.hist( getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
 plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
 plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
 plt.yscale('log')
@@ -1529,21 +1537,132 @@ if flagAllPlots:
     ax[len(datasetList)].set_xlabel("Theta",fontsize='14')
     ax[len(datasetList)].set_ylabel("E [GeV]",fontsize='14')
 
-    figname="ThetaVsE"
+    figname=runName+"ThetaVsE"
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[38]:
+# In[84]:
 
 
-plotSingleVariable2D(datasetList=datasetList, variableX="PosZFI", variableY="PosZ", plotTitle="Parent Electron First Interaction vs Z Exit Bib", 
-                                 xlabel="Z$_{e}$ [cm]", ylabel="Z [cm]", nbins=nbins*2, log=True, vmin=1e2,vmax=1e7,
-                                 figTitle="ZFIvsZBib", range=[[-200, 1500], [-300, 800]], hasBIB=-1)
+if flagAllPlots:
+    plotSingleVariable2D(datasetList=datasetList, variableX="PosZFI", variableY="PosZ", plotTitle="Parent Electron First Interaction vs Z Exit Bib",
+    xlabel="Z$_{e}$ [cm]", ylabel="Z [cm]", nbins=nbins*2, log=True, vmin=1,vmax=1e7,
+    figTitle="ZFIvsZBib", range=[[-200, 1000], [-200, 800]], hasBIB=-1)
+
+
+# In[39]:
+
+
+#datasetList[0]
+
+
+# In[93]:
+
+
+fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
+plt.suptitle("")
+
+for i, dataset in enumerate(datasetList):
+    ax[i].set_ylabel("x_e [m]",fontsize='14')
+    ax[i].set_xlabel("z_e [m]",fontsize='14')
+    ax[i].hist2d(dataset["PosZFI"]/100,dataset["PosXFI"]/100, range=([-5,100],[-5,0.3]), weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7), cmap='Reds')
+    
+    PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+    cb=plt.colorbar(PCM, ax=ax[i]) 
+    cb.set_label('Arb. Units')
+    ax[i].set_title(labelList[i])
+    ax[len(datasetList)].hist2d(dataset["PosZFI"]/100,dataset["PosXFI"]/100, range=([-5,100],[-5,0.3]),weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7))
+    
+    ax[len(datasetList)].set_title("Comparison")
+    # ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel("z_e [cm]",fontsize='14')
+    ax[len(datasetList)].set_ylabel("x_e [cm]",fontsize='14')
+
+    figname=runName+"z_evsx_e"
+    pl.savefig(figname,transparent=False, facecolor='white')   
+
+
+# In[92]:
+
+
+fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
+plt.suptitle("")
+
+for i, dataset in enumerate(datasetList):
+    ax[i].set_ylabel("x_e [m]",fontsize='14')
+    ax[i].set_xlabel("z_e [m]",fontsize='14')
+    ax[i].hist2d(dataset["PosZFI"]/100,dataset["PosXFI"]/100, range=([-2,20],[-0.1,0.1]), weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7), cmap='Reds')
+    
+    PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+    cb=plt.colorbar(PCM, ax=ax[i]) 
+    cb.set_label('Arb. Units')
+    ax[i].set_title(labelList[i])
+    ax[len(datasetList)].hist2d(dataset["PosZFI"]/100,dataset["PosXFI"]/100, range=([-2,20],[-0.1,0.1]),weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7))
+    
+    ax[len(datasetList)].set_title("Comparison")
+    # ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel("z_e [cm]",fontsize='14')
+    ax[len(datasetList)].set_ylabel("x_e [cm]",fontsize='14')
+
+    figname=runName+"z_evsx_e_zoom"
+    pl.savefig(figname,transparent=False, facecolor='white')  
+
+
+# In[94]:
+
+
+fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
+plt.suptitle("")
+
+for i, dataset in enumerate(datasetList):
+    ax[i].set_ylabel("y_e [m]",fontsize='14')
+    ax[i].set_xlabel("z_e [m]",fontsize='14')
+    ax[i].hist2d(dataset["PosZFI"]/100,dataset["PosYFI"]/100, range=([-5,100],[-0.1,0.1]), weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7), cmap='Reds')
+    
+    PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+    cb=plt.colorbar(PCM, ax=ax[i]) 
+    cb.set_label('Arb. Units')
+    ax[i].set_title(labelList[i])
+    ax[len(datasetList)].hist2d(dataset["PosZFI"]/100,dataset["PosYFI"]/100, range=([-5,100],[-0.1,0.1]),weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7))
+    
+    ax[len(datasetList)].set_title("Comparison")
+    # ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel("z_e [cm]",fontsize='14')
+    ax[len(datasetList)].set_ylabel("y_e [cm]",fontsize='14')
+
+    figname=runName+"z_evsy_e"
+    pl.savefig(figname,transparent=False, facecolor='white')  
+
+
+# In[95]:
+
+
+fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
+plt.suptitle("")
+
+for i, dataset in enumerate(datasetList):
+    ax[i].set_ylabel("y_e [m]",fontsize='14')
+    ax[i].set_xlabel("z_e [m]",fontsize='14')
+    ax[i].hist2d(dataset["PosZFI"]/100,dataset["PosYFI"]/100, range=([-5,10],[-0.1,0.1]), weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7), cmap='Reds')
+    
+    PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+    cb=plt.colorbar(PCM, ax=ax[i]) 
+    cb.set_label('Arb. Units')
+    ax[i].set_title(labelList[i])
+    ax[len(datasetList)].hist2d(dataset["PosZFI"]/100,dataset["PosYFI"]/100, range=([-5,10],[-0.1,0.1]),weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7))
+    
+    ax[len(datasetList)].set_title("Comparison")
+    # ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel("z_e [cm]",fontsize='14')
+    ax[len(datasetList)].set_ylabel("y_e [cm]",fontsize='14')
+
+    figname=runName+"z_evsy_e_zoom"
+    pl.savefig(figname,transparent=False, facecolor='white')  
 
 
 # ## Parent Electron Plots
 
-# In[39]:
+# In[45]:
 
 
 if flagReadEle:
@@ -1632,6 +1751,58 @@ if flagReadEle:
         plotEleDistrWithCut(dataset=datasetEleList[0],variable="EneEle", cutVariable="EneEle", cutCenter=500, cutRange=[500,100, 50, 10],nbins=100, log=True, xlabel="E [GeV]", figname="EnEleCutOnEneEle")
 else:
     print("Plots regarding parent electrons NOT requested")
+
+
+# In[90]:
+
+
+fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
+plt.suptitle("")
+
+for i, dataset in enumerate(datasetEleList):
+    ax[i].set_ylabel("x_e [m]",fontsize='14')
+    ax[i].set_xlabel("z_e [m]",fontsize='14')
+    ax[i].hist2d(dataset["PosZEle"]/100,dataset["PosXEle"]/100, range=([-5,100],[-5,0.3]), weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7), cmap='Reds')
+    
+    PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+    cb=plt.colorbar(PCM, ax=ax[i]) 
+    cb.set_label('Arb. Units')
+    ax[i].set_title(labelList[i])
+    ax[len(datasetList)].hist2d(dataset["PosZEle"]/100,dataset["PosXEle"]/100, range=([-5,100],[-5,0.3]),weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7))
+    
+    ax[len(datasetList)].set_title("Comparison")
+    # ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel("z_e [cm]",fontsize='14')
+    ax[len(datasetList)].set_ylabel("x_e [cm]",fontsize='14')
+
+    figname=runName+"Elez_evsx_e"
+    pl.savefig(figname,transparent=False, facecolor='white')   
+
+
+# In[96]:
+
+
+fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
+plt.suptitle("")
+
+for i, dataset in enumerate(datasetEleList):
+    ax[i].set_ylabel("y_e [m]",fontsize='14')
+    ax[i].set_xlabel("z_e [m]",fontsize='14')
+    ax[i].hist2d(dataset["PosZEle"]/100,dataset["PosYEle"]/100, range=([-5,100],[-0.1,0.1]), weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7), cmap='Reds')
+    
+    PCM=ax[i].get_children()[0] #get the mappable, the 1st and the 2nd are the x and y axes
+    cb=plt.colorbar(PCM, ax=ax[i]) 
+    cb.set_label('Arb. Units')
+    ax[i].set_title(labelList[i])
+    ax[len(datasetList)].hist2d(dataset["PosZEle"]/100,dataset["PosYEle"]/100, range=([-5,100],[-0.1,0.1]),weights=dataset["Weight"], bins=100, norm=matplotlib.colors.LogNorm(vmin=1,vmax=1e7))
+    
+    ax[len(datasetList)].set_title("Comparison")
+    # ax[len(datasetList)].legend()
+    ax[len(datasetList)].set_xlabel("z_e [cm]",fontsize='14')
+    ax[len(datasetList)].set_ylabel("y_e [cm]",fontsize='14')
+
+    figname=runName+"Elez_evsy_e"
+    pl.savefig(figname,transparent=False, facecolor='white')  
 
 
 # In[ ]:
