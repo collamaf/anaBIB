@@ -3,7 +3,7 @@
 
 # # BIB ANALYSIS
 
-# ### Last Update: 11-1-2022 by ccuratol
+# ### Last Update: 25-1-2022 by ccuratol
 
 # ## Imports
 
@@ -60,18 +60,18 @@ else:
     #inputFilesList=["../Dump_new/MARSresults/MARS1e5TeVmupiu", "../Dump_new/MARSresults/MARS1e5TeVmumeno"]
     #inputFilesList=["local_data/PR_3TeV_real", "local_data/PR_3TeV_real_ok"]
     #inputFilesList=["local_data/NEW_1e5TeV_base_point", "../Dump_new/MARSresults/MARS1e5TeVmumeno"]
-    inputFilesList=["local_data/CV_1e5TeV_base_SMALL", "local_data/CV_3TeV_base_SMALL"]
+    inputFilesList=["local_data/CV_1e5TeV_base_SMALL", "local_data/CV_3TeV_base_SMALL", "local_data/CV_3TeV_base_SMALL"]
     #labelList=["MARS+", "MARS-"]
     #labelList=["FLUKA3TeVreal", "FLUKA3TeVreal"]
     #labelList=["FLUKA", "MARS"]
-    labelList=["1.5TeV", "3TeV"]
+    labelList=["1.5TeV", "3TeV", "3TeVbis"]
 if args.runName:
     runName=args.runName+"_"
 else:
     #runName="1e5TeVMARS+vsMARS-_"
     #runName="FLUKA3TeVrealvsFLUKA3TeVreal_"
     #runName="1e5TeV_FLUKAvsMARS_"
-    runName="1e5vs3_"
+    runName="1e5vs3bis_"
 
 print("Leggo Files: ", inputFilesList, flagReadEle)
 
@@ -930,7 +930,7 @@ print(foundParticlesUniqueEntriesTimeCut)
 
 # ### Let's plot all particles' frequencies
 
-# In[19]:
+# In[32]:
 
 
 if flagAllPlots:
@@ -1008,89 +1008,90 @@ if flagAllPlots:
 
 # ### Show only the 4 more frequent particles
 
-# In[20]:
+# In[33]:
 
 
-fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(8,(len(datasetList)+1)*8))
-fig.suptitle(runName+"Particles Frequencies")
-width=0.3
-for i, dataset in enumerate(datasetList):
-    axs[i].bar(np.arange(4), foundParticlesUniqueEntries[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], ecolor="blue", capsize=10)
-#    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
+if flagAllPlots:
+    fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(8,(len(datasetList)+1)*8))
+    fig.suptitle(runName+"Particles Frequencies")
+    width=(1-0.2)/len(datasetList)
+    for i, dataset in enumerate(datasetList):
+        axs[i].bar(np.arange(4), foundParticlesUniqueEntries[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], ecolor="blue", capsize=10)
+    #    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
 
-    axs[i].set_title(labelList[i]) 
-    plt.sca(axs[i])
+        axs[i].set_title(labelList[i]) 
+        plt.sca(axs[i])
+        plt.xticks(range(4), particleNamesList[:4], size='large')
+        plt.xticks(rotation=90)
+        plt.ylabel("Occurency", size='large')
+
+        for j, v in enumerate(foundParticlesUniqueEntries[i][:4]):
+            if v!=0:
+                axs[i].text(j , v, "{:.2e}".format(v))
+                #axs[len(datasetList)].text(j , v, "{:.2e}".format(v), color="tab:blue")
+
+        axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntries[i][:4],width=width, ecolor="blue" , align='center',yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], log=True, label=labelList[i], alpha=1, capsize=10)
+        axs[len(datasetList)].set_title('Comparison')
+        plt.sca(axs[len(datasetList)])
+        plt.xticks(np.arange(4)+i*width/2, particleNamesList[:4], size='large')
+        plt.xticks(rotation=90)
+        plt.ylabel("Occurency", size='large')
+        plt.legend()
+
+    if len(datasetList)==2:
+        temp=(np.array(foundParticlesUniqueEntries[1][:4])-np.array(foundParticlesUniqueEntries[0][:4]))/np.array(foundParticlesUniqueEntries[0][:4])*100
+        lastPlotData=np.array(foundParticlesUniqueEntries[1][:4])-np.array(foundParticlesUniqueEntries[0][:4])
+        lastPlotData=np.where(np.isinf(temp), 0, temp)
+
+        lastPlotLabel="Difference [%]"
+        lastPlotTitle=lastPlotLabel +"{}-{}".format(labelList[1],labelList[0])
+        tempA=np.array(foundParticlesUniqueEntries[1][:4])
+        tempAerr=getParticlesNumbersErrors(datasetList[1],nSlicesErrors)[:4]
+        tempB=np.array(foundParticlesUniqueEntries[0][:4])
+        tempBerr=getParticlesNumbersErrors(datasetList[0],nSlicesErrors)[:4]
+        tempC=tempB
+        tempCerr=tempBerr
+        tempTotErr=np.sqrt(np.power(1/tempC,2)*np.power(tempAerr,2) + np.power(1/tempC,2)* np.power(tempBerr,2) + np.power((tempA-tempB)/np.power(tempC,2),2)*np.power(tempCerr,2) )
+        tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
+
+    else:
+        tempMatrix=np.asmatrix(foundParticlesUniqueEntries)
+        lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()[:4]
+        tempErr=np.zeros(4)
+
+        lastPlotLabel="All Run RMS / Mean [%]"
+        lastPlotTitle=lastPlotLabel
+    axs[len(datasetList)+1].bar(np.arange(4), lastPlotData, yerr=tempErr*100, align='center', log=False, label=labelList[i], capsize=10)
+    axs[len(datasetList)+1].set_title(lastPlotTitle)
+    axs[len(datasetList)+1].set_ylim(-200,200)
+    axs[len(datasetList)+1].locator_params(axis="y", nbins=20)
+    axs[len(datasetList)+1].grid(True, which="both")
+    for j, v in enumerate(lastPlotData):
+        if v!=0 and tempErr[j]*100<100:
+            axs[len(datasetList)+1].text(j , v, "{:.1f}$\pm${:.1f}".format(v,tempErr[j]*100))
+
+
+    plt.sca(axs[len(datasetList)+1])
     plt.xticks(range(4), particleNamesList[:4], size='large')
     plt.xticks(rotation=90)
-    plt.ylabel("Occurency", size='large')
-    
-    for j, v in enumerate(foundParticlesUniqueEntries[i][:4]):
-        if v!=0:
-            axs[i].text(j , v, "{:.2e}".format(v))
-            #axs[len(datasetList)].text(j , v, "{:.2e}".format(v), color="tab:blue")
-            
-    axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntries[i][:4],width=width, ecolor="blue" , align='center',yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], log=True, label=labelList[i], alpha=1, capsize=10)
-    axs[len(datasetList)].set_title('Comparison')
-    plt.sca(axs[len(datasetList)])
-    plt.xticks(np.arange(4)+i*width/2, particleNamesList[:4], size='large')
-    plt.xticks(rotation=90)
-    plt.ylabel("Occurency", size='large')
-    plt.legend()
-    
-if len(datasetList)==2:
-    temp=(np.array(foundParticlesUniqueEntries[1][:4])-np.array(foundParticlesUniqueEntries[0][:4]))/np.array(foundParticlesUniqueEntries[0][:4])*100
-    lastPlotData=np.array(foundParticlesUniqueEntries[1][:4])-np.array(foundParticlesUniqueEntries[0][:4])
-    lastPlotData=np.where(np.isinf(temp), 0, temp)
-
-    lastPlotLabel="Difference [%]"
-    lastPlotTitle=lastPlotLabel +"{}-{}".format(labelList[1],labelList[0])
-    tempA=np.array(foundParticlesUniqueEntries[1][:4])
-    tempAerr=getParticlesNumbersErrors(datasetList[1],nSlicesErrors)[:4]
-    tempB=np.array(foundParticlesUniqueEntries[0][:4])
-    tempBerr=getParticlesNumbersErrors(datasetList[0],nSlicesErrors)[:4]
-    tempC=tempB
-    tempCerr=tempBerr
-    tempTotErr=np.sqrt(np.power(1/tempC,2)*np.power(tempAerr,2) + np.power(1/tempC,2)* np.power(tempBerr,2) + np.power((tempA-tempB)/np.power(tempC,2),2)*np.power(tempCerr,2) )
-    tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
-    
-else:
-    tempMatrix=np.asmatrix(foundParticlesUniqueEntries)
-    lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()
-    tempErr=np.zeros(len(lastPlotData))
-
-    lastPlotLabel="All Run RMS / Mean [%]"
-    lastPlotTitle=lastPlotLabel
-axs[len(datasetList)+1].bar(np.arange(4), lastPlotData, yerr=tempErr*100, align='center', log=False, label=labelList[i], capsize=10)
-axs[len(datasetList)+1].set_title(lastPlotTitle)
-axs[len(datasetList)+1].set_ylim(-200,200)
-axs[len(datasetList)+1].locator_params(axis="y", nbins=20)
-axs[len(datasetList)+1].grid(True, which="both")
-for j, v in enumerate(lastPlotData):
-    if v!=0 and tempErr[j]*100<100:
-        axs[len(datasetList)+1].text(j , v, "{:.1f}$\pm${:.1f}".format(v,tempErr[j]*100))
+    plt.ylabel(lastPlotLabel, size='large')
 
 
-plt.sca(axs[len(datasetList)+1])
-plt.xticks(range(4), particleNamesList[:4], size='large')
-plt.xticks(rotation=90)
-plt.ylabel(lastPlotLabel, size='large')
-
-
-fig.subplots_adjust(top=0.93)
-fig.tight_layout()
-#plt.subplots_adjust(hspace = 0.1)
-figname=runName+"ParticleDistribution"
-pl.savefig(figname, transparent=False, facecolor='white')
+    fig.subplots_adjust(top=0.93)
+    fig.tight_layout()
+    #plt.subplots_adjust(hspace = 0.1)
+    figname=runName+"ParticleDistribution"
+    pl.savefig(figname, transparent=False, facecolor='white')
 
 
 # ## With and without Time Cut together
 
-# In[26]:
+# In[35]:
 
 
 fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(12,(len(datasetList)+1)*8))
 fig.suptitle(runName+"Particles Frequencies w/ and w/o Time Cut  tmin={} [ns] tmax={} [ns]".format(timeCut[0],timeCut[1]))
-width=0.4
+width=(1-0.2)/len(datasetList)
 for i, dataset in enumerate(datasetList):
     axs[i].bar(np.arange(4), foundParticlesUniqueEntries[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], edgecolor="tab:blue", ecolor="tab:blue", color="white", capsize=10, alpha=1, label="NoTimeCut")
     axs[i].bar(np.arange(4), foundParticlesUniqueEntriesTimeCut[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], linestyle="--", edgecolor="tab:blue", ecolor="tab:blue", capsize=10, alpha=1, label="TimeCut")
@@ -1143,9 +1144,9 @@ if len(datasetList)==2:
     tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
     
 else:
-    tempMatrix=np.asmatrix(foundParticlesUniqueEntriesTimeCut)
-    lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()
-    tempErr=np.zeros(len(lastPlotData))
+    tempMatrix=np.asmatrix(foundParticlesUniqueEntries)
+    lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()[:4]
+    tempErr=np.zeros(4)
 
     lastPlotLabel="All Run RMS / Mean [%]"
     lastPlotTitle=lastPlotLabel
@@ -1168,86 +1169,87 @@ plt.ylabel(lastPlotLabel, size='large')
 fig.subplots_adjust(top=0.93)
 fig.tight_layout()
 #plt.subplots_adjust(hspace = 0.1)
-figname=runName+"ParticleDistributionTimeCut"
+figname=runName+"ParticleDistributionAlsoTimeCut"
 pl.savefig(figname, transparent=False, facecolor='white')
 
 
 # ### With Time Cut
 
-# In[25]:
+# In[36]:
 
 
-fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(12,(len(datasetList)+1)*8))
-fig.suptitle(runName+"Particles Frequencies Time Cut  tmin={} [ns] tmax={} [ns]".format(timeCut[0],timeCut[1]))
-width=0.4
-for i, dataset in enumerate(datasetList):
-    axs[i].bar(np.arange(4), foundParticlesUniqueEntriesTimeCut[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], ecolor="blue", capsize=10)
-#    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
+if flagAllPlots:
+    fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(12,(len(datasetList)+1)*8))
+    fig.suptitle(runName+"Particles Frequencies Time Cut  tmin={} [ns] tmax={} [ns]".format(timeCut[0],timeCut[1]))
+    width=(1-0.2)/len(datasetList)
+    for i, dataset in enumerate(datasetList):
+        axs[i].bar(np.arange(4), foundParticlesUniqueEntriesTimeCut[i][:4], align='center', log=True, yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], ecolor="blue", capsize=10)
+    #    axs[i].bar(range(len(foundParticlesUnique)), getParticlesNumbersErrors(dataset,nSlicesErrors), align='center', log=True)
 
-    axs[i].set_title(labelList[i]) 
-    plt.sca(axs[i])
+        axs[i].set_title(labelList[i]) 
+        plt.sca(axs[i])
+        plt.xticks(range(4), particleNamesList[:4], size='large')
+        plt.xticks(rotation=90)
+        plt.ylabel("Occurency", size='large')
+
+        for j, v in enumerate(foundParticlesUniqueEntriesTimeCut[i][:4]):
+            if v!=0:
+                axs[i].text(j , v, "{:.2e}".format(v))
+                axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*1.2, "{:.2e}".format(v))
+                #axs[len(datasetList)].text(j , v, "{:.2e}".format(v), color="tab:blue")
+
+        axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntriesTimeCut[i][:4],width=width, ecolor="blue" , align='center',yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], log=True, label=labelList[i], alpha=1, capsize=10)
+        axs[len(datasetList)].set_title('Comparison')
+        plt.sca(axs[len(datasetList)])
+        plt.xticks(np.arange(4)+i*width/2, particleNamesList[:4], size='large')
+        plt.xticks(rotation=90)
+        plt.ylabel("Occurency", size='large')
+        plt.legend()
+
+    if len(datasetList)==2:
+        temp=(np.array(foundParticlesUniqueEntriesTimeCut[1][:4])-np.array(foundParticlesUniqueEntriesTimeCut[0][:4]))/np.array(foundParticlesUniqueEntriesTimeCut[0][:4])*100
+        lastPlotData=np.array(foundParticlesUniqueEntriesTimeCut[1][:4])-np.array(foundParticlesUniqueEntriesTimeCut[0][:4])
+        lastPlotData=np.where(np.isinf(temp), 0, temp)
+
+        lastPlotLabel="Difference [%]"
+        lastPlotTitle=lastPlotLabel +"{}-{}".format(labelList[1],labelList[0])
+        tempA=np.array(foundParticlesUniqueEntriesTimeCut[1][:4])
+        tempAerr=getParticlesNumbersErrors(datasetList[1],nSlicesErrors)[:4]
+        tempB=np.array(foundParticlesUniqueEntriesTimeCut[0][:4])
+        tempBerr=getParticlesNumbersErrors(datasetList[0],nSlicesErrors)[:4]
+        tempC=tempB
+        tempCerr=tempBerr
+        tempTotErr=np.sqrt(np.power(1/tempC,2)*np.power(tempAerr,2) + np.power(1/tempC,2)* np.power(tempBerr,2) + np.power((tempA-tempB)/np.power(tempC,2),2)*np.power(tempCerr,2) )
+        tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
+
+    else:
+        tempMatrix=np.asmatrix(foundParticlesUniqueEntries)
+        lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()[:4]
+        tempErr=np.zeros(4)
+
+        lastPlotLabel="All Run RMS / Mean [%]"
+        lastPlotTitle=lastPlotLabel
+    axs[len(datasetList)+1].bar(np.arange(4), lastPlotData, yerr=tempErr*100, align='center', log=False, label=labelList[i], capsize=10)
+    axs[len(datasetList)+1].set_title(lastPlotTitle)
+    axs[len(datasetList)+1].set_ylim(-200,200)
+    axs[len(datasetList)+1].locator_params(axis="y", nbins=20)
+    axs[len(datasetList)+1].grid(True, which="both")
+    for j, v in enumerate(lastPlotData):
+        if v!=0 and tempErr[j]*100<100:
+            axs[len(datasetList)+1].text(j , v, "{:.1f}$\pm${:.1f}".format(v,tempErr[j]*100))
+
+
+    plt.sca(axs[len(datasetList)+1])
     plt.xticks(range(4), particleNamesList[:4], size='large')
     plt.xticks(rotation=90)
-    plt.ylabel("Occurency", size='large')
-    
-    for j, v in enumerate(foundParticlesUniqueEntriesTimeCut[i][:4]):
-        if v!=0:
-            axs[i].text(j , v, "{:.2e}".format(v))
-            axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*1.2, "{:.2e}".format(v))
-            #axs[len(datasetList)].text(j , v, "{:.2e}".format(v), color="tab:blue")
-            
-    axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntriesTimeCut[i][:4],width=width, ecolor="blue" , align='center',yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], log=True, label=labelList[i], alpha=1, capsize=10)
-    axs[len(datasetList)].set_title('Comparison')
-    plt.sca(axs[len(datasetList)])
-    plt.xticks(np.arange(4)+i*width/2, particleNamesList[:4], size='large')
-    plt.xticks(rotation=90)
-    plt.ylabel("Occurency", size='large')
-    plt.legend()
-    
-if len(datasetList)==2:
-    temp=(np.array(foundParticlesUniqueEntriesTimeCut[1][:4])-np.array(foundParticlesUniqueEntriesTimeCut[0][:4]))/np.array(foundParticlesUniqueEntriesTimeCut[0][:4])*100
-    lastPlotData=np.array(foundParticlesUniqueEntriesTimeCut[1][:4])-np.array(foundParticlesUniqueEntriesTimeCut[0][:4])
-    lastPlotData=np.where(np.isinf(temp), 0, temp)
-
-    lastPlotLabel="Difference [%]"
-    lastPlotTitle=lastPlotLabel +"{}-{}".format(labelList[1],labelList[0])
-    tempA=np.array(foundParticlesUniqueEntriesTimeCut[1][:4])
-    tempAerr=getParticlesNumbersErrors(datasetList[1],nSlicesErrors)[:4]
-    tempB=np.array(foundParticlesUniqueEntriesTimeCut[0][:4])
-    tempBerr=getParticlesNumbersErrors(datasetList[0],nSlicesErrors)[:4]
-    tempC=tempB
-    tempCerr=tempBerr
-    tempTotErr=np.sqrt(np.power(1/tempC,2)*np.power(tempAerr,2) + np.power(1/tempC,2)* np.power(tempBerr,2) + np.power((tempA-tempB)/np.power(tempC,2),2)*np.power(tempCerr,2) )
-    tempErr=np.where(np.isinf(tempTotErr), 0, tempTotErr)
-    
-else:
-    tempMatrix=np.asmatrix(foundParticlesUniqueEntriesTimeCut)
-    lastPlotData=np.array(tempMatrix.std(0)/tempMatrix.mean(0)*100).flatten()
-    tempErr=np.zeros(len(lastPlotData))
-
-    lastPlotLabel="All Run RMS / Mean [%]"
-    lastPlotTitle=lastPlotLabel
-axs[len(datasetList)+1].bar(np.arange(4), lastPlotData, yerr=tempErr*100, align='center', log=False, label=labelList[i], capsize=10)
-axs[len(datasetList)+1].set_title(lastPlotTitle)
-axs[len(datasetList)+1].set_ylim(-200,200)
-axs[len(datasetList)+1].locator_params(axis="y", nbins=20)
-axs[len(datasetList)+1].grid(True, which="both")
-for j, v in enumerate(lastPlotData):
-    if v!=0 and tempErr[j]*100<100:
-        axs[len(datasetList)+1].text(j , v, "{:.1f}$\pm${:.1f}".format(v,tempErr[j]*100))
+    plt.ylabel(lastPlotLabel, size='large')
 
 
-plt.sca(axs[len(datasetList)+1])
-plt.xticks(range(4), particleNamesList[:4], size='large')
-plt.xticks(rotation=90)
-plt.ylabel(lastPlotLabel, size='large')
-
-
-fig.subplots_adjust(top=0.93)
-fig.tight_layout()
-#plt.subplots_adjust(hspace = 0.1)
-figname=runName+"ParticleDistributionTimeCut"
-pl.savefig(figname, transparent=False, facecolor='white')
+    fig.subplots_adjust(top=0.93)
+    fig.tight_layout()
+    #plt.subplots_adjust(hspace = 0.1)
+    figname=runName+"ParticleDistributionTimeCut"
+    pl.savefig(figname, transparent=False, facecolor='white')
 
 
 # ## Count Particle Numbers
