@@ -3,7 +3,7 @@
 
 # # BIB ANALYSIS
 
-# ### Last Update: 25-1-2022 by ccuratol
+# ### Last Update: 26-1-2022 by collamaf
 
 # ## Imports
 
@@ -60,11 +60,11 @@ else:
     #inputFilesList=["../Dump_new/MARSresults/MARS1e5TeVmupiu", "../Dump_new/MARSresults/MARS1e5TeVmumeno"]
     #inputFilesList=["local_data/PR_3TeV_real", "local_data/PR_3TeV_real_ok"]
     #inputFilesList=["local_data/NEW_1e5TeV_base_point", "../Dump_new/MARSresults/MARS1e5TeVmumeno"]
-    inputFilesList=["local_data/CV_1e5TeV_base_SMALL", "local_data/CV_3TeV_base_SMALL", "local_data/CV_3TeV_base_SMALL"]
+    inputFilesList=["local_data/CV_1e5TeV_base_SMALL", "local_data/CV_3TeV_base_SMALL"]
     #labelList=["MARS+", "MARS-"]
     #labelList=["FLUKA3TeVreal", "FLUKA3TeVreal"]
     #labelList=["FLUKA", "MARS"]
-    labelList=["1.5TeV", "3TeV", "3TeVbis"]
+    labelList=["1.5TeV", "3TeV"]
 if args.runName:
     runName=args.runName+"_"
 else:
@@ -388,31 +388,44 @@ def plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False):
     pl.savefig(figname,transparent=False, facecolor='white')
     
     
-def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False):
-    fig, axs = plt.subplots(nrows=1, ncols=3, figsize=(15,5), sharey=False)
-    plt.suptitle("Lethergy plots")
+def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, trange=None, plotTitle="Energy Spectra"):
+    lineStyles=['solid', 'dotted', 'dashed', 'dashdot' ]
+    fig, axs = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*7,7), sharey=False)
+#    plt.suptitle("Lethergy plots")
+    if trange:
+        plt.suptitle(plotTitle+str.format(' tmin={} [ns] tmax={} [ns]', trange[0],trange[1]))
+    else:
+        plt.suptitle(plotTitle)
 
     for i, dataset in enumerate(datasetList):
-        axs[0].hist(np.log(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=[-30,0], weights=getInfo(dataset, 22, "Weight"), log=logY, label=labelList[i])
-        axs[1].hist(np.log(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=[-30,0], weights=getInfo(dataset, 2112, "Weight"), log=logY, label=labelList[i])
-        axs[2].hist(np.log(getInfo(dataset,[11,-11],"KinE")),histtype='step', bins=nbins,range=[-30,0], weights=getInfo(dataset, [11,-11], "Weight"), log=logY, label=labelList[i])
-    
-    for i in range(0,3):
-        axs[i].set_ylim(1e2,3e7)
-        if not logX:
-            axs[i].legend(loc= 'lower left')
-        axs[i].grid(True)
-        axs[i].set_xlabel("$log(E_{kin})$ [GeV]",fontsize='14')
-        axs[i].set_ylabel("Arb. Units",fontsize='14')
+        if trange:
+            dataset=dataset[(dataset["Time"]>trange[0]) & (dataset["Time"]<trange[1])]
+        axs[i].hist(np.log(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[i], label='$\gamma$')
+        axs[i].hist(np.log(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[i], label='$e^-$')
+        axs[i].hist(np.log(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[i], label='$e^+$')
+        axs[i].hist(np.log(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[i], label="n")
+
+        axs[i].set_title(labelList[i])
+        axs[i].legend(loc= 'upper left')
+        
+        axs[len(datasetList)].hist(np.log(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[i], label='$\gamma$')
+        axs[len(datasetList)].hist(np.log(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[i], label='$e^-$')
+        axs[len(datasetList)].hist(np.log(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[i], label='$e^+$')
+        axs[len(datasetList)].hist(np.log(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[i], label="n")
+        axs[len(datasetList)].set_title("Comparison")
+        
+        if yrange:
+            axs[i].set_ylim(yrange)
         if logX:
             axs[i].set_xscale("log")
-        
-    axs[0].set_title("$\gamma$")
-    axs[1].set_title("n")
-    axs[2].set_title("$e^-~/~e^+$")
+        axs[i].grid(True)
+        axs[i].set_xlabel("$log(E_{kin})$ [GeV]",fontsize='14')
+        axs[i].set_ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
 
+    axs[len(datasetList)].grid(True)
+    axs[len(datasetList)].set_xlabel("$log(E_{kin})$ [GeV]",fontsize='14')
+    axs[len(datasetList)].set_ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
     fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
-
     figname=runName+"Lethergy"
     if logX:
         figname=figname+"logX"
@@ -930,7 +943,7 @@ print(foundParticlesUniqueEntriesTimeCut)
 
 # ### Let's plot all particles' frequencies
 
-# In[32]:
+# In[19]:
 
 
 if flagAllPlots:
@@ -1008,7 +1021,7 @@ if flagAllPlots:
 
 # ### Show only the 4 more frequent particles
 
-# In[33]:
+# In[20]:
 
 
 if flagAllPlots:
@@ -1086,7 +1099,7 @@ if flagAllPlots:
 
 # ## With and without Time Cut together
 
-# In[35]:
+# In[21]:
 
 
 fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(12,(len(datasetList)+1)*8))
@@ -1175,7 +1188,7 @@ pl.savefig(figname, transparent=False, facecolor='white')
 
 # ### With Time Cut
 
-# In[36]:
+# In[22]:
 
 
 if flagAllPlots:
@@ -1254,7 +1267,7 @@ if flagAllPlots:
 
 # ## Count Particle Numbers
 
-# In[ ]:
+# In[23]:
 
 
 for i, dataset in enumerate(datasetList):
@@ -1274,9 +1287,11 @@ for i, dataset in enumerate(datasetList):
 
 # ## Plot Energy Spectra
 
-# ### All Relevant Particles Energy Spectra
+# ### All Relevant Particles Energy Spectra - Lethargy Plots
 
-# In[22]:
+# Old ("manual") version
+
+# In[24]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1323,10 +1338,18 @@ figname=runName+"Lethargy"
 pl.savefig(figname)
 
 
-# In[23]:
+# New version
+
+# In[25]:
 
 
-#plotLethargy(datasetList, nbins=nbins, logY=True, logX=False)
+plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7))
+
+
+# In[26]:
+
+
+plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=(-1,15))
 
 
 # In[24]:
