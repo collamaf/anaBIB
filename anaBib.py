@@ -1346,13 +1346,13 @@ pl.savefig(figname)
 plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7))
 
 
-# In[26]:
+# In[50]:
 
 
-plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=(-1,15))
+plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=timeCut)
 
 
-# In[24]:
+# In[27]:
 
 
 if flagAllPlots:
@@ -1360,7 +1360,7 @@ if flagAllPlots:
     plotAllEnergySpectra(datasetList, nbins=10000, logY=True, logX=True)
 
 
-# In[25]:
+# In[28]:
 
 
 ### Photons and e+/e-
@@ -1373,7 +1373,7 @@ if flagAllPlots:
 
 # ## Plot Time Distributions
 
-# In[26]:
+# In[29]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1420,7 +1420,7 @@ figname=runName+"Time"
 pl.savefig(figname)
 
 
-# In[27]:
+# In[30]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="Time", xrange=(-30,100))
@@ -1430,7 +1430,7 @@ pl.savefig(figname)
 
 # ### Global
 
-# In[28]:
+# In[31]:
 
 
 fig=plt.figure(figsize=(6,5))
@@ -1449,7 +1449,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Per Particle
 
-# In[29]:
+# In[32]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1496,7 +1496,7 @@ figname=runName+"PosZ"
 pl.savefig(figname)
 
 
-# In[30]:
+# In[33]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1543,7 +1543,7 @@ figname=runName+"PosZ_zoom"
 pl.savefig(figname)
 
 
-# In[31]:
+# In[34]:
 
 
 tmin=-15.
@@ -1592,19 +1592,19 @@ figname=runName+"PosZ_zoom_timecut"
 pl.savefig(figname)
 
 
-# In[32]:
+# In[35]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ", xrange=[-200,200])
 
 
-# In[33]:
+# In[36]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ_timecut", xrange=[-200,200],trange=[-1,15])
 
 
-# In[34]:
+# In[37]:
 
 
 fig=plt.figure(figsize=(14,5))
@@ -1651,7 +1651,7 @@ figname=runName+"PosZmu"
 pl.savefig(figname)
 
 
-# In[35]:
+# In[38]:
 
 
 #plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
@@ -1659,7 +1659,7 @@ pl.savefig(figname)
 
 # ### Z vs x
 
-# In[36]:
+# In[39]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1688,7 +1688,7 @@ figname=runName+"ZvsX_FLUKA"
 pl.savefig(figname,transparent=False, facecolor='white')
 
 
-# In[37]:
+# In[40]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1719,7 +1719,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Theta vs E for BIB electrons
 
-# In[38]:
+# In[41]:
 
 
 if flagAllPlots:
@@ -1750,7 +1750,7 @@ if flagAllPlots:
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[39]:
+# In[42]:
 
 
 if flagAllPlots:
@@ -1759,7 +1759,7 @@ if flagAllPlots:
     figTitle="ZFIvsZBib", range=[[-200, 1000], [-200, 800]], hasBIB=-1)
 
 
-# In[41]:
+# In[43]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1785,7 +1785,7 @@ for i, dataset in enumerate(datasetList):
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[42]:
+# In[44]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1811,7 +1811,7 @@ for i, dataset in enumerate(datasetList):
     pl.savefig(figname,transparent=False, facecolor='white')  
 
 
-# In[43]:
+# In[45]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1837,7 +1837,7 @@ for i, dataset in enumerate(datasetList):
     pl.savefig(figname,transparent=False, facecolor='white')  
 
 
-# In[44]:
+# In[46]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1865,7 +1865,7 @@ for i, dataset in enumerate(datasetList):
 
 # ## Parent Electron Plots
 
-# In[45]:
+# In[47]:
 
 
 if flagReadEle:
@@ -1956,7 +1956,7 @@ else:
     print("Plots regarding parent electrons NOT requested")
 
 
-# In[46]:
+# In[48]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1982,7 +1982,7 @@ for i, dataset in enumerate(datasetEleList):
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[47]:
+# In[49]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
