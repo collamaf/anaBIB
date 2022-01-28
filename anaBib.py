@@ -1427,12 +1427,6 @@ figname=runName+"Time"
 pl.savefig(figname)
 
 
-# In[ ]:
-
-
-plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None,trange=None):
-
-
 # In[51]:
 
 
