@@ -390,7 +390,7 @@ def plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False):
     
 def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, trange=None, plotTitle="Energy Spectra"):
     lineStyles=['solid', 'dotted', 'dashed', 'dashdot' ]
-    fig, axs = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*7,7), sharey=False)
+    fig, axs = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*5,5), sharey=False)
 #    plt.suptitle("Lethergy plots")
     if trange:
         plt.suptitle(plotTitle+str.format(' tmin={} [ns] tmax={} [ns]', trange[0],trange[1]))
@@ -416,16 +416,17 @@ def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, t
         
         if yrange:
             axs[i].set_ylim(yrange)
+            axs[len(datasetList)].set_ylim(yrange)
         if logX:
             axs[i].set_xscale("log")
-        axs[i].grid(True)
-        axs[i].set_xlabel("$log(E_{kin})$ [GeV]",fontsize='14')
+        #axs[i].grid(True)
+        axs[i].set_xlabel("$log(E_{kin})$ [GeV]",fontsize=14)
         axs[i].set_ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
 
-    axs[len(datasetList)].grid(True)
-    axs[len(datasetList)].set_xlabel("$log(E_{kin})$ [GeV]",fontsize='14')
+    #axs[len(datasetList)].grid(True)
+    axs[len(datasetList)].set_xlabel("$log(E_{kin})$ [GeV]",fontsize=14)
     axs[len(datasetList)].set_ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
-    fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
+    fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0., top=0.85, bottom= 0.2)
     figname=runName+"Lethergy"
     if logX:
         figname=figname+"logX"
@@ -1099,10 +1100,10 @@ if flagAllPlots:
 
 # ## With and without Time Cut together
 
-# In[21]:
+# In[24]:
 
 
-fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(12,(len(datasetList)+1)*8))
+fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(16,(len(datasetList)+1)*8))
 fig.suptitle(runName+"Particles Frequencies w/ and w/o Time Cut  tmin={} [ns] tmax={} [ns]".format(timeCut[0],timeCut[1]))
 width=(1-0.2)/len(datasetList)
 for i, dataset in enumerate(datasetList):
@@ -1121,19 +1122,25 @@ for i, dataset in enumerate(datasetList):
     for j, v in enumerate(foundParticlesUniqueEntriesTimeCut[i][:4]):
         if v!=0:
             axs[i].text(j , 0.8*v, "{:.2e}".format(v))
-            axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*0.5, "{:.2e}".format(v))
+#            axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*0.5, "{:.2e}".format(v), rotation=30)
+            axs[len(datasetList)].text(j if i==0 else j+width if i==1 else  j+2*width , v*0.5, "{:.2e}".format(v), rotation=30)
+
+
             #axs[len(datasetList)].text(j , v, "{:.2e}".format(v), color="tab:blue")
             
     for j, v in enumerate(foundParticlesUniqueEntries[i][:4]):
         if v!=0:
             axs[i].text(j , 1.2*v, "{:.2e}".format(v))
-            axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*1.2, "{:.2e}".format(v))
+ #           axs[len(datasetList)].text(j+0.2 if i%2 else j-0.2 , v*1.2, "{:.2e}".format(v), rotation=30)
+            axs[len(datasetList)].text(j if i==0 else j+width if i==1 else  j+2*width , v*1.2, "{:.2e}".format(v), rotation=30)
+
+
             
     axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntries[i][:4],width=width, edgecolor="tab:blue", ecolor="tab:blue", color="white", align='center',yerr=getParticlesNumbersErrors(dataset[(dataset["Time"]>timeCut[0]) & (dataset["Time"]<timeCut[1])],nSlicesErrors)[:4], log=True, label=labelList[i], alpha=1, capsize=10)
     axs[len(datasetList)].bar(np.arange(4)+i*width, foundParticlesUniqueEntriesTimeCut[i][:4],width=width, linestyle="--", edgecolor="tab:blue", ecolor="tab:blue", align='center',yerr=getParticlesNumbersErrors(dataset,nSlicesErrors)[:4], log=True, label=labelList[i]+"_TimeCut", alpha=1, capsize=10)
 
 
-    axs[len(datasetList)].set_title('Comparison')
+    #axs[len(datasetList)].set_title('Comparison')
     plt.sca(axs[len(datasetList)])
     plt.xticks(np.arange(4)+i*width/2, particleNamesList[:4], size='large')
     plt.xticks(rotation=0)
@@ -1340,13 +1347,13 @@ pl.savefig(figname)
 
 # New version
 
-# In[25]:
+# In[42]:
 
 
 plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7))
 
 
-# In[50]:
+# In[43]:
 
 
 plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=timeCut)
@@ -1372,6 +1379,85 @@ if flagAllPlots:
 
 
 # ## Plot Time Distributions
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
+def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None,trange=None):
+    ## This function plots a given variable for Gammas, e+e-, ch.had, n. and mu+mi-.
+    ## A plot for each dataset is produced, plus one last plot with all datasets superimposed
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
+    if trange:
+        plt.suptitle(plotTitle+str.format(' tmin={} [ns] tmax={} [ns]', trange[0],trange[1]))
+    else:
+        plt.suptitle(plotTitle)
+    
+    for i, dataset in enumerate(datasetList):
+        ax[i].set_xlabel(xlabel,fontsize='14')
+        ax[i].set_ylabel(ylabel,fontsize='14')
+        if trange:
+            dataset=dataset[(dataset["Time"]>trange[0]) & (dataset["Time"]<trange[1])]
+
+#        temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label="$\gamma$"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,variable).mean()))
+#        ax[i].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label="e+e-"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,-11],variable).mean()))
+#        ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,listChargedHadrons),getInfo(dataset,listChargedHadrons,variable).mean()))
+#        ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label="Neutrons"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,2112),getInfo(dataset,2112,variable).mean()))
+#        ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[13,-13]),getInfo(dataset,[13,-13],variable).mean()))
+
+        temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label="$\gamma$")
+        ax[i].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label="e+e-")
+        #ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
+        ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label="Neutrons")
+        #ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
+
+
+        if i==0:
+            maxHeight=temp[0].max() #Calcolo l'altezza massima del bin in modo da forzare gli N grafici ad avere la stessa scala verticale facilitando il confronto
+            #print(maxHeight)
+        ax[i].set_title(labelList[i])
+        box = ax[i].get_position()
+        ax[i].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
+        ax[i].legend(loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=3)
+        if ymax!=None:
+            ax[i].axis(ymin=1e2, ymax=ymax)
+        else:
+            ax[i].axis(ymin=1e2, ymax=maxHeight*2)
+
+        ax[len(datasetList)].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label=labelList[i]+" $\gamma$")
+        ax[len(datasetList)].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label=labelList[i]+" e+e-")
+        #ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
+        ax[len(datasetList)].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label=labelList[i]+" Neutrons")
+        #ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
+
+        if ymax!=None:
+            ax[len(datasetList)].axis(ymin=1e2, ymax=ymax)
+        else:
+            ax[len(datasetList)].axis(ymin=1e2, ymax=maxHeight*2)
+        
+    ax[len(datasetList)].set_title("Comparison")
+    #ax[len(datasetList)].legend(fontsize="x-small")
+    box = ax[len(datasetList)].get_position()
+    ax[len(datasetList)].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
+    ax[len(datasetList)].legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize="x-small")
+    ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
+    ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
+    fig.tight_layout()
+    figname=runName+figTitle
+    pl.savefig(figname,transparent=False, facecolor='white')
+
+
+# In[ ]:
+
+
+
+
 
 # In[29]:
 
@@ -1420,10 +1506,16 @@ figname=runName+"Time"
 pl.savefig(figname)
 
 
-# In[30]:
+# In[ ]:
 
 
-#plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=nbinsH, log=True, figTitle="Time", xrange=(-30,100))
+plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None,trange=None):
+
+
+# In[51]:
+
+
+plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=200, log=True, figTitle="Time", xrange=(-25,100))
 
 
 # ## Plot Muons' Decay Position
