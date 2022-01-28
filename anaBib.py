@@ -3,7 +3,7 @@
 
 # # BIB ANALYSIS
 
-# ### Last Update: 26-1-2022 by collamaf
+# ### Last Update: 28-1-2022 by collamaf
 
 # ## Imports
 
@@ -1100,7 +1100,7 @@ if flagAllPlots:
 
 # ## With and without Time Cut together
 
-# In[24]:
+# In[21]:
 
 
 fig, axs = plt.subplots(nrows=len(datasetList)+2, ncols=1, figsize=(16,(len(datasetList)+1)*8))
@@ -1347,13 +1347,13 @@ pl.savefig(figname)
 
 # New version
 
-# In[42]:
+# In[25]:
 
 
 plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7))
 
 
-# In[43]:
+# In[26]:
 
 
 plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=timeCut)
@@ -1379,85 +1379,6 @@ if flagAllPlots:
 
 
 # ## Plot Time Distributions
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None,trange=None):
-    ## This function plots a given variable for Gammas, e+e-, ch.had, n. and mu+mi-.
-    ## A plot for each dataset is produced, plus one last plot with all datasets superimposed
-    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
-    if trange:
-        plt.suptitle(plotTitle+str.format(' tmin={} [ns] tmax={} [ns]', trange[0],trange[1]))
-    else:
-        plt.suptitle(plotTitle)
-    
-    for i, dataset in enumerate(datasetList):
-        ax[i].set_xlabel(xlabel,fontsize='14')
-        ax[i].set_ylabel(ylabel,fontsize='14')
-        if trange:
-            dataset=dataset[(dataset["Time"]>trange[0]) & (dataset["Time"]<trange[1])]
-
-#        temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label="$\gamma$"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,variable).mean()))
-#        ax[i].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label="e+e-"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,-11],variable).mean()))
-#        ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,listChargedHadrons),getInfo(dataset,listChargedHadrons,variable).mean()))
-#        ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label="Neutrons"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,2112),getInfo(dataset,2112,variable).mean()))
-#        ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[13,-13]),getInfo(dataset,[13,-13],variable).mean()))
-
-        temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label="$\gamma$")
-        ax[i].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label="e+e-")
-        #ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
-        ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label="Neutrons")
-        #ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
-
-
-        if i==0:
-            maxHeight=temp[0].max() #Calcolo l'altezza massima del bin in modo da forzare gli N grafici ad avere la stessa scala verticale facilitando il confronto
-            #print(maxHeight)
-        ax[i].set_title(labelList[i])
-        box = ax[i].get_position()
-        ax[i].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
-        ax[i].legend(loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=3)
-        if ymax!=None:
-            ax[i].axis(ymin=1e2, ymax=ymax)
-        else:
-            ax[i].axis(ymin=1e2, ymax=maxHeight*2)
-
-        ax[len(datasetList)].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label=labelList[i]+" $\gamma$")
-        ax[len(datasetList)].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label=labelList[i]+" e+e-")
-        #ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
-        ax[len(datasetList)].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label=labelList[i]+" Neutrons")
-        #ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
-
-        if ymax!=None:
-            ax[len(datasetList)].axis(ymin=1e2, ymax=ymax)
-        else:
-            ax[len(datasetList)].axis(ymin=1e2, ymax=maxHeight*2)
-        
-    ax[len(datasetList)].set_title("Comparison")
-    #ax[len(datasetList)].legend(fontsize="x-small")
-    box = ax[len(datasetList)].get_position()
-    ax[len(datasetList)].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
-    ax[len(datasetList)].legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize="x-small")
-    ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
-    ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
-    fig.tight_layout()
-    figname=runName+figTitle
-    pl.savefig(figname,transparent=False, facecolor='white')
-
-
-# In[ ]:
-
-
-
-
 
 # In[29]:
 
