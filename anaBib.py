@@ -3,7 +3,7 @@
 
 # # BIB ANALYSIS
 
-# ### Last Update: 28-1-2022 by collamaf
+# ### Last Update: 16-2-2022 by collamaf
 
 # ## Imports
 
@@ -85,6 +85,7 @@ flagApplyPaperEnCut=False
 flagApplyZCut=False
 
 listChargedHadrons=[321, 311, 211, 2212, 3122, 3112, -321, -311, -211, -2212, -3122, -3112]
+lineStyles=['solid', 'dotted', 'dashed', 'dashdot' ]
 
 nbins=50
 nbinsH=200
@@ -118,71 +119,8 @@ if flagReadEle:
 
 # ## Utility Functions
 
-# In[4]:
+# In[83]:
 
-
-def plot_arrays(array1, array2=None, label1="", label2="", title="", array3=None, label3=""):
-    plt.figure(1, figsize= (14,11))
-    ax1=plt.subplot(211)
-    ax1.hist(array1, bins=100, color='r', label =label1, histtype='step') 
-    if (array2 is not None):
-        ax1.hist(array2.flatten(), bins=100, color='g',  label =label2, histtype='step')
-    if (array3 is not None):
-        ax1.hist(array3.flatten(), bins=100, color='b',  label =label3, histtype='step', linestyle='-.')
-    ax1.set(xlabel='HU', ylabel='[#]', title=title)
-    ax1.legend()
-    plt.yscale('log')
-    plt.show()
-
-def plot1D(ax,x,plotTitle="", label="",xlabel="x",ylabel="y",log=True,col="r", weights=None,bins=None,rng=None, numPart=None, ls="solid"):
-    ax.set_xlabel(xlabel,fontsize='14')
-    ax.set_ylabel(ylabel,fontsize='14')
-    ax.set_title(plotTitle)
-   
-    if log:
-        ax.set_ylim(auto=True)
-    if numPart:
-        ax.hist(x,log=log,histtype='step', label=label+str.format(r' N={:.2e} $\bar x$={:.2e}',numPart if numPart else 0,x.mean()), bins=bins, range=rng, weights=weights, linestyle=ls)
-    else:
-        ax.hist(x,log=log,histtype='step', label=label, bins=bins, range=rng, weights=weights, linestyle=ls)
-    ax.legend(loc= "best")
-    ax.grid(True)
-    return ax
-
-def plot1Dold(ax,data,label="",xlabel="x",ylabel="y",log=False,col="r", weights=None,bins=None,rng=None, numPart=None):
-    ax.set_xlabel(xlabel,fontsize='14')
-    ax.set_ylabel(ylabel,fontsize='14')
-    if numPart:
-        if numPart==0:
-            ax.set_title('NO PARTS ')
-        else:
-            ax.set_title('N of particles '+ str.format('{:.2e}',numPart),fontsize=12)
-
-    if log:
-        ax.set_ylim(auto=True)
-    ax.hist(data,log=log,histtype='step', label=label+ str.format(r'  $\bar x$= {:.2e}',data.mean()), color=col, bins=bins, range=rng, weights=weights)
-    ax.legend(loc= "best")
-    ax.grid(True)
-    return ax
-
-def getMomentumOld(part, absFlag=False, bFlag=False):
-    if bFlag:
-        if abs:
-            return numpy.sqrt(datasetB[abs(datasetB["PDGcode"])==part]["PX"]**2+datasetB[abs(datasetB["PDGcode"])==part]["PY"]**2+datasetB[abs(datasetB["PDGcode"])==part]["PZ"]**2)
-        else:
-            return numpy.sqrt(datasetB[datasetB["PDGcode"]==part]["PX"]**2+datasetB[datasetB["PDGcode"]==part]["PY"]**2+datasetB[datasetB["PDGcode"]==part]["PZ"]**2)  
-    else:
-        if abs:
-            return numpy.sqrt(dataset[abs(dataset["PDGcode"])==part]["PX"]**2+dataset[abs(dataset["PDGcode"])==part]["PY"]**2+dataset[abs(dataset["PDGcode"])==part]["PZ"]**2)
-        else:
-            return numpy.sqrt(dataset[dataset["PDGcode"]==part]["PX"]**2+dataset[dataset["PDGcode"]==part]["PY"]**2+dataset[dataset["PDGcode"]==part]["PZ"]**2)
-
-        
-def getMomentum2(data, part, absFlag=False):
-    if abs:
-        return numpy.sqrt(data[abs(data["PDGcode"])==part]["PX"]**2+data[abs(data["PDGcode"])==part]["PY"]**2+data[abs(data["PDGcode"])==part]["PZ"]**2)
-    else:
-        return numpy.sqrt(data[data["PDGcode"]==part]["PX"]**2+data[data["PDGcode"]==part]["PY"]**2+data[data["PDGcode"]==part]["PZ"]**2)
 
 def getInfo(dataset, part, info):
     if isinstance(part, int):
@@ -190,6 +128,21 @@ def getInfo(dataset, part, info):
     else:
         if isinstance(part, list):
             return dataset[dataset["PDGcode"].isin(part)][info]
+        
+def plot1D(ax,x,plotTitle="", label="",xlabel="x",ylabel="y",log=True,col=None, weights=None,bins=None,rng=None, numPart=None, ls="solid"):
+    ax.set_xlabel(xlabel,fontsize='14')
+    ax.set_ylabel(ylabel,fontsize='14')
+    ax.set_title(plotTitle)
+   
+    if log:
+        ax.set_ylim(auto=True)
+    if numPart:
+        ax.hist(x,log=log,histtype='step', label=label+str.format(r' N={:.2e} $\bar x$={:.2e}',numPart if numPart else 0,x.mean()), bins=bins, range=rng, weights=weights, linestyle=ls, color=col)
+    else:
+        ax.hist(x,log=log,histtype='step', label=label, bins=bins, range=rng, weights=weights, linestyle=ls, color=col)
+    ax.legend(loc= "best")
+    ax.grid(True)
+    return ax
     
 def getMomentum(data, part, absFlag=False):
     if isinstance(part, int):
@@ -249,11 +202,11 @@ def drawPie(dataset, var, title=""):
 #    figname=+str(title)
     pl.savefig(runName+title,transparent=False, facecolor='white')
     
-   
-def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None,trange=None):
+def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xlabel="", ylabel="Arb. Units", nbins=nbins, log=True, figTitle="", xrange=None, ymax=None,trange=None, alsoWithTime=False):
     ## This function plots a given variable for Gammas, e+e-, ch.had, n. and mu+mi-.
     ## A plot for each dataset is produced, plus one last plot with all datasets superimposed
-    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
+    fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*5,5), sharey=False)
+
     if trange:
         plt.suptitle(plotTitle+str.format(' tmin={} [ns] tmax={} [ns]', trange[0],trange[1]))
     else:
@@ -262,39 +215,75 @@ def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xla
     for i, dataset in enumerate(datasetList):
         ax[i].set_xlabel(xlabel,fontsize='14')
         ax[i].set_ylabel(ylabel,fontsize='14')
-        if trange:
+        if trange and alsoWithTime:
+            temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange,color='r', alpha=0.5)
+            ax[i].hist(getInfo(dataset, 11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 11, "Weight"), log=log, range=xrange,color='k', alpha=0.5)
+            ax[i].hist(getInfo(dataset, -11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, -11, "Weight"), log=log, range=xrange,color='y', alpha=0.5)
+            #ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
+            ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange,color='blue', alpha=0.5)
+            #ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
+
+            ax[len(datasetList)].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange,color='r', linestyle=lineStyles[i])
+            ax[len(datasetList)].hist(getInfo(dataset, 11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 11, "Weight"), log=log, range=xrange,color='k', linestyle=lineStyles[i])
+            ax[len(datasetList)].hist(getInfo(dataset, -11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, -11, "Weight"), log=log, range=xrange,color='y', linestyle=lineStyles[i])
+            #ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
+            ax[len(datasetList)].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange,color='blue', linestyle=lineStyles[i])
+            #ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
+            
+            
             dataset=dataset[(dataset["Time"]>trange[0]) & (dataset["Time"]<trange[1])]
+            
+            temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange,color='r', label="$\gamma$")
+            ax[i].hist(getInfo(dataset, 11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 11, "Weight"), log=log, range=xrange,color='k', label="e-")
+            ax[i].hist(getInfo(dataset, -11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, -11, "Weight"), log=log, range=xrange,color='y', label="e+")
+            #ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
+            ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange,color='blue', label="n")
+            #ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
+
+            ax[len(datasetList)].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange,color='r', linestyle=lineStyles[i], label=labelList[i]+" $\gamma$")
+            ax[len(datasetList)].hist(getInfo(dataset, 11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 11, "Weight"), log=log, range=xrange,color='k', linestyle=lineStyles[i], label=labelList[i]+" e-")
+            ax[len(datasetList)].hist(getInfo(dataset, -11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, -11, "Weight"), log=log, range=xrange,color='y', linestyle=lineStyles[i], label=labelList[i]+" e-")
+            #ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
+            ax[len(datasetList)].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange,color='blue', linestyle=lineStyles[i], label=labelList[i]+" n")
+            #ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
 
 #        temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label="$\gamma$"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,22),getInfo(dataset,22,variable).mean()))
 #        ax[i].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label="e+e-"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[11,-11]),getInfo(dataset,[11,-11],variable).mean()))
 #        ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,listChargedHadrons),getInfo(dataset,listChargedHadrons,variable).mean()))
 #        ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label="Neutrons"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,2112),getInfo(dataset,2112,variable).mean()))
 #        ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-"+str.format(r' N={:.2e} $\bar x$={:.2e}',getParticleNumber(dataset,[13,-13]),getInfo(dataset,[13,-13],variable).mean()))
+        else:
+            if trange:
+                dataset=dataset[(dataset["Time"]>trange[0]) & (dataset["Time"]<trange[1])]
+            temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange,color='r', label="$\gamma$")
+            ax[i].hist(getInfo(dataset, 11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 11, "Weight"), log=log, range=xrange,color='k', label="e-")
+            ax[i].hist(getInfo(dataset, -11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, -11, "Weight"), log=log, range=xrange,color='y', label="e+")
+            #ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
+            ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange,color='blue', label="n")
+            #ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
 
-        temp=ax[i].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label="$\gamma$")
-        ax[i].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label="e+e-")
-        #ax[i].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label="Ch. Had")
-        ax[i].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label="Neutrons")
-        #ax[i].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label="Mu+Mu-")
+
+
+            ax[len(datasetList)].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange,color='r', linestyle=lineStyles[i], label=labelList[i]+" $\gamma$")
+            ax[len(datasetList)].hist(getInfo(dataset, 11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 11, "Weight"), log=log, range=xrange,color='k', linestyle=lineStyles[i], label=labelList[i]+" e-")
+            ax[len(datasetList)].hist(getInfo(dataset, -11, variable),histtype='step', bins=nbins, weights=getInfo(dataset, -11, "Weight"), log=log, range=xrange,color='y', linestyle=lineStyles[i], label=labelList[i]+" e-")
+            #ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
+            ax[len(datasetList)].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange,color='blue', linestyle=lineStyles[i], label=labelList[i]+" n")
+            #ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
 
 
         if i==0:
             maxHeight=temp[0].max() #Calcolo l'altezza massima del bin in modo da forzare gli N grafici ad avere la stessa scala verticale facilitando il confronto
             #print(maxHeight)
         ax[i].set_title(labelList[i])
-        box = ax[i].get_position()
-        ax[i].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
-        ax[i].legend(loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=3)
+        #box = ax[i].get_position()
+        #ax[i].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
+        #ax[i].legend(loc='upper center', bbox_to_anchor=(0.5, 1.2), ncol=3)
+        ax[i].legend()
         if ymax!=None:
             ax[i].axis(ymin=1e2, ymax=ymax)
         else:
             ax[i].axis(ymin=1e2, ymax=maxHeight*2)
-
-        ax[len(datasetList)].hist(getInfo(dataset, 22, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 22, "Weight"), log=log, range=xrange, label=labelList[i]+" $\gamma$")
-        ax[len(datasetList)].hist(getInfo(dataset, [-11,11], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [11,-11], "Weight"), log=log, range=xrange, label=labelList[i]+" e+e-")
-        #ax[len(datasetList)].hist(getInfo(dataset, listChargedHadrons, variable),histtype='step', bins=nbins, weights=getInfo(dataset, listChargedHadrons, "Weight"), log=log, range=xrange, label=labelList[i]+" Ch. Had")
-        ax[len(datasetList)].hist(getInfo(dataset, 2112, variable),histtype='step', bins=nbins, weights=getInfo(dataset, 2112, "Weight"), log=log, range=xrange, label=labelList[i]+" Neutrons")
-        #ax[len(datasetList)].hist(getInfo(dataset, [-13,13], variable),histtype='step', bins=nbins, weights=getInfo(dataset, [13,-13], "Weight"), log=log, range=xrange, label=labelList[i]+" Mu+Mu-")
 
         if ymax!=None:
             ax[len(datasetList)].axis(ymin=1e2, ymax=ymax)
@@ -304,14 +293,16 @@ def plotVariablePerEachRelevantParticle(datasetList, variable, plotTitle="", xla
     ax[len(datasetList)].set_title("Comparison")
     #ax[len(datasetList)].legend(fontsize="x-small")
     box = ax[len(datasetList)].get_position()
-    ax[len(datasetList)].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
-    ax[len(datasetList)].legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize="x-small")
+   # ax[len(datasetList)].set_position([box.x0, box.y0 , box.width, box.height * 0.8])
+   # ax[len(datasetList)].legend(loc='upper center', bbox_to_anchor=(0.5, 1.25), ncol=2, fontsize="x-small")
     ax[len(datasetList)].set_xlabel(xlabel,fontsize='14')
     ax[len(datasetList)].set_ylabel(ylabel,fontsize='14')
+    ax[len(datasetList)].legend(fontsize='9')
+    fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
+
     fig.tight_layout()
     figname=runName+figTitle
     pl.savefig(figname,transparent=False, facecolor='white')
-        
 
 def plotMomenta(datasetList, particleList, particleLabel, title, xlabel="p [GeV/c]", ylabel="Arb. Units", nbins=nbins, log=True, figName="", xrange=None, ymax=None):
     fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*8,8), sharey=False)
@@ -387,8 +378,8 @@ def plotAllEnergySpectra(datasetList, nbins=nbins, logY=True, logX=False):
         figname=figname+"logX"
     pl.savefig(figname,transparent=False, facecolor='white')
     
-    
-def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, trange=None, plotTitle="Energy Spectra"):
+   
+def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, trange=None, plotTitle="Energy Spectra", xrange=None):
     lineStyles=['solid', 'dotted', 'dashed', 'dashdot' ]
     fig, axs = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*5,5), sharey=False)
 #    plt.suptitle("Lethergy plots")
@@ -400,18 +391,18 @@ def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, t
     for i, dataset in enumerate(datasetList):
         if trange:
             dataset=dataset[(dataset["Time"]>trange[0]) & (dataset["Time"]<trange[1])]
-        axs[i].hist(np.log(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[i], label='$\gamma$')
-        axs[i].hist(np.log(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[i], label='$e^-$')
-        axs[i].hist(np.log(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[i], label='$e^+$')
-        axs[i].hist(np.log(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[i], label="n")
+        axs[i].hist(np.log10(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[i], label='$\gamma$')
+        axs[i].hist(np.log10(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[i], label='$e^-$')
+        axs[i].hist(np.log10(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[i], label='$e^+$')
+        axs[i].hist(np.log10(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[i], label="n")
 
         axs[i].set_title(labelList[i])
         axs[i].legend(loc= 'upper left')
         
-        axs[len(datasetList)].hist(np.log(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[i], label='$\gamma$')
-        axs[len(datasetList)].hist(np.log(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[i], label='$e^-$')
-        axs[len(datasetList)].hist(np.log(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[i], label='$e^+$')
-        axs[len(datasetList)].hist(np.log(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=[-25,0], weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[i], label="n")
+        axs[len(datasetList)].hist(np.log10(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[i], label='$\gamma$')
+        axs[len(datasetList)].hist(np.log10(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[i], label='$e^-$')
+        axs[len(datasetList)].hist(np.log10(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[i], label='$e^+$')
+        axs[len(datasetList)].hist(np.log10(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[i], label="n")
         axs[len(datasetList)].set_title("Comparison")
         
         if yrange:
@@ -420,11 +411,11 @@ def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, t
         if logX:
             axs[i].set_xscale("log")
         #axs[i].grid(True)
-        axs[i].set_xlabel("$log(E_{kin})$ [GeV]",fontsize=14)
+        axs[i].set_xlabel("$Log(E_{kin})$ [GeV]",fontsize=14)
         axs[i].set_ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
 
     #axs[len(datasetList)].grid(True)
-    axs[len(datasetList)].set_xlabel("$log(E_{kin})$ [GeV]",fontsize=14)
+    axs[len(datasetList)].set_xlabel("$Log(E_{kin})$ [GeV]",fontsize=14)
     axs[len(datasetList)].set_ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
     fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0., top=0.85, bottom= 0.2)
     figname=runName+"Lethergy"
@@ -432,35 +423,46 @@ def plotLethargy(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, t
         figname=figname+"logX"
     pl.savefig(figname,transparent=False, facecolor='white')
     
-def scatter_histo(x, y, ax, ax_histx, ax_histy, weights=None, xlabel="", ylabel="", xrange=[-750, 750], yrange=[-30,30]):
-    ax_histx.tick_params(axis="x", labelbottom=False)
-    ax_histy.tick_params(axis="y", labelleft=False)
-    ax.hist2d(x, y,weights=weights,bins=100,norm=matplotlib.colors.LogNorm(), cmap='Blues')
-    ax_histx.hist(x,log=True, weights=weights,histtype='step',bins=100,rwidth=binwidth,color='b')
-    ax_histy.hist(y,log=True, weights=weights,histtype='step',bins=100,rwidth=binwidth,color='b', orientation='horizontal')
-    plt.gca().invert_yaxis()
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
+def plotLethargyAlsoWithTimeCut(datasetList, nbins=nbins, logY=True, logX=False, yrange=None, trange=None, plotTitle="Energy Spectra", xrange=None):
+    lineStyles=['solid', 'dotted', 'dashed', 'dashdot' ]
+    fig, axs = plt.subplots(nrows=1, ncols=len(datasetList), figsize=((len(datasetList))*5,5), sharey=False)
+#    plt.suptitle("Lethergy plots")
+
+    plt.suptitle(plotTitle+str.format(' w/ and w/o Time Cut tmin={} [ns] tmax={} [ns]', trange[0],trange[1]))
+    for i, dataset in enumerate(datasetList):
+        axs[i].hist(np.log10(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[0], label='$\gamma$', alpha=0.5)
+        axs[i].hist(np.log10(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[0], label='$e^-$', alpha=0.5)
+        axs[i].hist(np.log10(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[0], label='$e^+$', alpha=0.5)
+ #       axs[i].hist(np.log10(getInfo(dataset,13,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 13, "Weight"), log=logY,color='g',linestyle=lineStyles[0], label='$\mu^-$')
+ #       axs[i].hist(np.log10(getInfo(dataset,-13,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, -13, "Weight"), log=logY,color='m',linestyle=lineStyles[0], label='$\mu^+$')
+        axs[i].hist(np.log10(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[0], label="n", alpha=0.5)
+        if trange:
+            dataset=dataset[(dataset["Time"]>trange[0]) & (dataset["Time"]<trange[1])]
+        axs[i].hist(np.log10(getInfo(dataset,22,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 22, "Weight"), log=logY,color='r',linestyle=lineStyles[0])
+        axs[i].hist(np.log10(getInfo(dataset,11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 11, "Weight"), log=logY,color='k',linestyle=lineStyles[0])
+        axs[i].hist(np.log10(getInfo(dataset,-11,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, -11, "Weight"), log=logY,color='y',linestyle=lineStyles[0])
+ #       axs[i].hist(np.log10(getInfo(dataset,13,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 13, "Weight"), log=logY,color='g',linestyle=lineStyles[0])
+ #       axs[i].hist(np.log10(getInfo(dataset,-13,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, -13, "Weight"), log=logY,color='m',linestyle=lineStyles[0]) 
+        axs[i].hist(np.log10(getInfo(dataset,2112,"KinE")),histtype='step', bins=nbins,range=xrange, weights=getInfo(dataset, 2112, "Weight"), log=logY,color='b',linestyle=lineStyles[0])
+
+        axs[i].set_title(labelList[i])
+        axs[i].legend(loc= 'upper left')
+        
+        if yrange:
+            axs[i].set_ylim(yrange)
+        if logX:
+            axs[i].set_xscale("log")
+        #axs[i].grid(True)
+        axs[i].set_xlabel("$Log(E_{kin})$ [GeV]",fontsize=14)
+        axs[i].set_ylabel('dN/dLog(E$_{kin}$)',fontsize=14)
+
+    #axs[len(datasetList)].grid(True)
+    fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0., top=0.85, bottom= 0.2)
+    figname=runName+"Lethergy"
+    if logX:
+        figname=figname+"logX"
+    pl.savefig(figname,transparent=False, facecolor='white')
     
-def scatter_histo2(x, y, ax, ax_histx, ax_histy, weights=None, xlabel="", ylabel="", xrange=[-750, 750], yrange=[-30,30]):
-    ax_histx.tick_params(axis="x", labelbottom=False)
-    ax_histy.tick_params(axis="y", labelleft=False)
-    ax.hist2d(x, y,weights=weights,range=[xrange, yrange],bins=100,norm=matplotlib.colors.LogNorm(), cmap='Blues')
-    ax_histx.hist(x,log=True, weights=weights,histtype='step',range=(-750,750),bins=100,rwidth=binwidth,color='b')
-    ax_histy.hist(y,log=True, weights=weights,histtype='step',range=(-30,30),bins=100,rwidth=binwidth,color='b', orientation='horizontal')
-    plt.gca().invert_yaxis()
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    
-def scatter_histoOld(x, y, ax, ax_histx, ax_histy, weights=None, xlabel="", ylabel=""):
-    ax_histx.tick_params(axis="x", labelbottom=False)
-    ax_histy.tick_params(axis="y", labelleft=False)
-    ax.hist2d(x, y,weights=weights,range=[[-750, 750], [-30, 30]],bins=100,norm=matplotlib.colors.LogNorm(), cmap='Blues')
-    ax_histx.hist(x,log=True, weights=weights,histtype='step',range=(-750,750),bins=100,rwidth=binwidth,color='b')
-    ax_histy.hist(y,log=True, weights=weights,histtype='step',range=(-30,30),bins=100,rwidth=binwidth,color='b', orientation='horizontal')
-    plt.gca().invert_yaxis()
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
 
 left, width = 0.1, 0.65
 bottom, height = 0.1, 0.65
@@ -1292,71 +1294,30 @@ for i, dataset in enumerate(datasetList):
     print()
 
 
-# ## Plot Energy Spectra
+# ## Plot Energy Spectra - Lethargy Plots
 
-# ### All Relevant Particles Energy Spectra - Lethargy Plots
-
-# Old ("manual") version
+# ### New version - No Time Cut
 
 # In[24]:
-
-
-fig=plt.figure(figsize=(14,5))
-plt.suptitle("Lethargy plot")
-plt.subplot(1, 3, 1)
-plt.gca().set_title(labelList[0])
-plt.hist(np.log(getInfo(datasetList[0],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[0],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[0],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[0],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('log(E$_{kin}$) (GeV)',fontsize=14)
-plt.ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,3e7))
-plt.subplot(1, 3, 2)
-plt.gca().set_title(labelList[1])
-plt.hist(np.log(getInfo(datasetList[1],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[1],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[1],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[1],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('log(E$_{kin}$) (GeV)',fontsize=14)
-plt.ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,3e7))
-plt.subplot(1, 3, 3)
-plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist(np.log(getInfo(datasetList[1],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[1],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[1],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[1],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.hist(np.log(getInfo(datasetList[0],22,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(np.log(getInfo(datasetList[0],11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(np.log(getInfo(datasetList[0],-11,"KinE")),histtype='step',range=[-25,0], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(np.log(getInfo(datasetList[0],2112,"KinE")),histtype='step', range=[-25,0], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('log(E$_{kin}$) (GeV)',fontsize=14)
-plt.ylabel('dN/dlog(E$_{kin}$)',fontsize=14)
-plt.yscale('log')
-#plt.legend(loc= 'upper left')
-plt.ylim((1e2,3e7))
-fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
-figname=runName+"Lethargy"
-pl.savefig(figname)
-
-
-# New version
-
-# In[25]:
 
 
 plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7))
 
 
+# ### New version - With Time Cut
+
+# In[25]:
+
+
+plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=timeCut, xrange=[-6,1])
+
+
+# ### With and Without Time Cut
+
 # In[26]:
 
 
-plotLethargy(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=timeCut)
+plotLethargyAlsoWithTimeCut(datasetList, nbins=200, logY=True, logX=False, yrange=(1e2,3e7), trange=timeCut)
 
 
 # In[27]:
@@ -1383,54 +1344,13 @@ if flagAllPlots:
 # In[29]:
 
 
-fig=plt.figure(figsize=(14,5))
-plt.suptitle("Time distribution")
-plt.subplot(1, 3, 1)
-plt.gca().set_title(labelList[0])
-plt.hist(getInfo(datasetList[0],22,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[0],11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(getInfo(datasetList[0],-11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(getInfo(datasetList[0],2112,"Time"),histtype='step', range=[-25,100], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('t (ns)',fontsize=14)
-plt.ylabel('dN/dt',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper right')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 2)
-plt.gca().set_title(labelList[1])
-plt.hist(getInfo(datasetList[1],22,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[1],11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(getInfo(datasetList[1],-11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(getInfo(datasetList[1],2112,"Time"),histtype='step', range=[-25,100], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('t (ns)',fontsize=14)
-plt.ylabel('dN/dt',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper right')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 3)
-plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist( getInfo(datasetList[0],22,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[0],11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist( getInfo(datasetList[0],-11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist( getInfo(datasetList[0],2112,"Time"),histtype='step', range=[-25,100], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.hist( getInfo(datasetList[1],22,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[1],11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist( getInfo(datasetList[1],-11,"Time"),histtype='step',range=[-25,100], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist( getInfo(datasetList[1],2112,"Time"),histtype='step', range=[-25,100], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('t (ns)',fontsize=14)
-plt.ylabel('dN/dt',fontsize=14)
-plt.yscale('log')
-#plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
-figname=runName+"Time"
-pl.savefig(figname)
-
-
-# In[51]:
-
-
 plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="Time", plotTitle="Time Distribution", xlabel="t [ns]", ylabel="Arb. Units", nbins=200, log=True, figTitle="Time", xrange=(-25,100))
+
+
+# In[30]:
+
+
+plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="Time", plotTitle="Time DistributionZoom", xlabel="t [ns]", ylabel="Arb. Units", nbins=200, log=True, figTitle="TimeZoom", xrange=(-1,15))
 
 
 # ## Plot Muons' Decay Position
@@ -1454,219 +1374,100 @@ figname=runName+"MuDec"
 pl.savefig(figname,transparent=False, facecolor='white')
 
 
-# ### Per Particle
+# ### Z Position Plots
 
 # In[32]:
 
 
-fig=plt.figure(figsize=(14,5))
-plt.suptitle("Z exit")
-plt.subplot(1, 3, 1)
-plt.gca().set_title(labelList[0])
-plt.hist(getInfo(datasetList[0],22,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[0],11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(getInfo(datasetList[0],-11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(getInfo(datasetList[0],2112,"PosZ"),histtype='step', range=[-800,800], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 2)
-plt.gca().set_title(labelList[1])
-plt.hist(getInfo(datasetList[1],22,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[1],11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(getInfo(datasetList[1],-11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(getInfo(datasetList[1],2112,"PosZ"),histtype='step', range=[-800,800], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 3)
-plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist( getInfo(datasetList[0],22,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[0],11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist( getInfo(datasetList[0],-11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist( getInfo(datasetList[0],2112,"PosZ"),histtype='step', range=[-800,800], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.hist( getInfo(datasetList[1],22,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[1],11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist( getInfo(datasetList[1],-11,"PosZ"),histtype='step',range=[-800,800], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist( getInfo(datasetList[1],2112,"PosZ"),histtype='step', range=[-800,800], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-#plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5,top=0.85, bottom= 0.2)
-figname=runName+"PosZ"
-pl.savefig(figname)
+plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Zexit", xlabel="z [cm]", ylabel="Arb. Units", nbins=200, log=True, figTitle="PosZ")
+
+plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="ZexitZoom", xlabel="z [cm]", ylabel="Arb. Units", nbins=200, log=True, figTitle="PosZZoom", xrange=[-200,200])
+
+plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="ZexitZoom", xlabel="z [cm]", ylabel="Arb. Units", nbins=200, log=True, figTitle="PosZZoomTimeCut", xrange=[-200,200],trange=[-1,15])
+
+plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="ZexitZoom w/ and w/o Time Cut", xlabel="z [cm]", ylabel="Arb. Units", nbins=200, log=True, figTitle="PosZZoomAlsoTimeCut", xrange=[-200,200],trange=[-1,15], alsoWithTime=True)
 
 
-# In[33]:
+# fig=plt.figure(figsize=(14,5))
+# plt.suptitle("z$_{\mu}$ decay")
+# plt.subplot(1, 3, 1)
+# plt.gca().set_title(labelList[0])
+# plt.hist(getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
+# plt.hist(getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
+# plt.hist(getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
+# plt.hist(getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
+# plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
+# plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
+# plt.yscale('log')
+# plt.legend(loc= 'upper right')
+# plt.ylim((1e2,2e7))
+# plt.subplot(1, 3, 2)
+# plt.gca().set_title(labelList[1])
+# plt.hist(getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
+# plt.hist(getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
+# plt.hist(getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
+# plt.hist(getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
+# plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
+# plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
+# plt.yscale('log')
+# plt.legend(loc= 'upper right')
+# plt.ylim((1e2,2e7))
+# plt.subplot(1, 3, 3)
+# plt.gca().set_title(labelList[0]+" & "+labelList[1])
+# plt.hist( getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
+# plt.hist( getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
+# plt.hist( getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
+# plt.hist( getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
+# plt.hist( getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
+# plt.hist( getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
+# plt.hist( getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
+# plt.hist( getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
+# plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
+# plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
+# plt.yscale('log')
+# #plt.legend(loc= 'upper left')
+# plt.ylim((1e2,2e7))
+# fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5,top=0.85, bottom= 0.2)
+# figname=runName+"PosZmu"
+# pl.savefig(figname)
+
+# In[86]:
 
 
-fig=plt.figure(figsize=(14,5))
-plt.suptitle("Z exit")
-plt.subplot(1, 3, 1)
-plt.gca().set_title(labelList[0])
-plt.hist(getInfo(datasetList[0],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[0],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(getInfo(datasetList[0],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(getInfo(datasetList[0],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 2)
-plt.gca().set_title(labelList[1])
-plt.hist(getInfo(datasetList[1],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[1],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(getInfo(datasetList[1],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(getInfo(datasetList[1],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 3)
-plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist( getInfo(datasetList[0],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[0],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist( getInfo(datasetList[0],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist( getInfo(datasetList[0],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[0], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.hist( getInfo(datasetList[1],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[1],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist( getInfo(datasetList[1],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist( getInfo(datasetList[1],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[1], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-#plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5, top=0.85, bottom= 0.2)
-figname=runName+"PosZ_zoom"
-pl.savefig(figname)
+fig, axs = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(10,13), sharex=False)
+binWidthZ=0.5
 
+for datasetNumber, dataset in enumerate(datasetList):
+    nBinZ.append(int(((dataset["PosZmu"]/100).max()-(dataset["PosZmu"]/100).min())/binWidthZ))
+    
+    plot1D(axs[datasetNumber],getInfo(datasetList[0],22,"PosZmu")/100, weights=getInfo(datasetList[0],22,"Weight")/100,bins=nBinZ[-1], plotTitle="Muon Decay Z", label="$\gamma$", xlabel='', ylabel='dN/dz$_{\mu}$', col="r" )
+    plot1D(axs[datasetNumber],getInfo(datasetList[0],11,"PosZmu")/100, weights=getInfo(datasetList[0],11,"Weight")/100,bins=nBinZ[-1], plotTitle="Muon Decay Z", label="e-", xlabel='', ylabel='dN/dz$_{\mu}$', col="k" )
+    plot1D(axs[datasetNumber],getInfo(datasetList[0],-11,"PosZmu")/100, weights=getInfo(datasetList[0],-11,"Weight")/100,bins=nBinZ[-1], plotTitle="Muon Decay Z", label="e+", xlabel='', ylabel='dN/dz$_{\mu}$', col="y" )
+    plot1D(axs[datasetNumber],getInfo(datasetList[0],2112,"PosZmu")/100, weights=getInfo(datasetList[0],2112,"Weight")/100,bins=nBinZ[-1], plotTitle="Muon Decay Z", label="n", xlabel='', ylabel='dN/dz$_{\mu}$', col="b" )
+    axs[datasetNumber].twinx().hist(dataset["PosZmu"]/100, weights=dataset["Weight"], bins=nBinZ[-1], cumulative=1,histtype='step', label="cum "+labelList[datasetNumber], density=True, linestyle=':', color="black")
+    axs[datasetNumber].legend(loc= "best")
+    axs[datasetNumber].set_title(labelList[datasetNumber])
+    axs[datasetNumber].set_xlabel("$Z_{\mu} [m]$")
 
-# In[34]:
+axs[0].set_xlim(0,45)
+#axs[0].axis(ymin=100, ymax=1e9)
+#axs[0].grid(True, which="both", axis='y')
+#axs[0].locator_params(axis="x", nbins=20)
+#axs[2].grid(True, which="both")
+#axs[2].set_title("Cumulative Function Norm")
+#axs[2].legend(loc= "best", fontsize='x-small')
 
+#axs[1].legend(loc= "best")
+#axs[1].set_title("Cumulative Function Not Norm")
+#axs[1].grid(True, which="both")
 
-tmin=-15.
-tmax=15.
-fig=plt.figure(figsize=(14,5))
-plt.suptitle("Z exit"+str.format(' tmin={} [ns] tmax={} [ns]', tmin,tmax))
-plt.subplot(1, 3, 1)
-plt.gca().set_title(labelList[0])
-plt.hist(getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 2)
-plt.gca().set_title(labelList[1])
-plt.hist(getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist(getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist(getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-plt.subplot(1, 3, 3)
-plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist( getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], 22, "Weight"), bins=200,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], 11, "Weight"), bins=200,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist( getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], -11, "Weight"), bins=200,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist( getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[0][(datasetList[0]["Time"]>tmin) & (datasetList[0]["Time"]<tmax)], 2112, "Weight"),bins=200,color='blue',linestyle=":", label= 'n ')
-plt.hist( getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],22,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], 22, "Weight"), bins=200,color='r', label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], 11, "Weight"), bins=200,color='k', label= '$e^-$ ')
-plt.hist( getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],-11,"PosZ"),histtype='step',range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], -11, "Weight"), bins=200,color='y', label= '$e^+$ ')
-plt.hist( getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)],2112,"PosZ"),histtype='step', range=[-200,200], weights=getInfo(datasetList[1][(datasetList[1]["Time"]>tmin) & (datasetList[1]["Time"]<tmax)], 2112, "Weight"),bins=200,color='blue', label= 'n ')
-plt.xlabel('z (cm)',fontsize=14)
-plt.ylabel('dN/dz',fontsize=14)
-plt.yscale('log')
-#plt.legend(loc= 'upper left')
-plt.ylim((1e2,5e7))
-fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5,top=0.85, bottom= 0.2)
-figname=runName+"PosZ_zoom_timecut"
-pl.savefig(figname)
-
-
-# In[35]:
-
-
-#plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ", xrange=[-200,200])
-
-
-# In[36]:
-
-
-#plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZ", plotTitle="Z of BIB Exiting Point", xlabel='$z$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="ExitZ_timecut", xrange=[-200,200],trange=[-1,15])
-
-
-# In[37]:
-
-
-fig=plt.figure(figsize=(14,5))
-plt.suptitle("z$_{\mu}$ decay")
-plt.subplot(1, 3, 1)
-plt.gca().set_title(labelList[0])
-plt.hist(getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist(getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist(getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
-plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
-plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper right')
-plt.ylim((1e2,2e7))
-plt.subplot(1, 3, 2)
-plt.gca().set_title(labelList[1])
-plt.hist(getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
-plt.hist(getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
-plt.hist(getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
-plt.hist(getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
-plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
-plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
-plt.yscale('log')
-plt.legend(loc= 'upper right')
-plt.ylim((1e2,2e7))
-plt.subplot(1, 3, 3)
-plt.gca().set_title(labelList[0]+" & "+labelList[1])
-plt.hist( getInfo(datasetList[0],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 22, "Weight"), bins=100,color='r',linestyle=":", label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[0],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], 11, "Weight"), bins=100,color='k',linestyle=":", label= '$e^-$ ')
-plt.hist( getInfo(datasetList[0],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[0], -11, "Weight"), bins=100,color='y',linestyle=":", label= '$e^+$ ')
-plt.hist( getInfo(datasetList[0],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[0], 2112, "Weight"),bins=100,color='blue',linestyle=":", label= 'n ')
-plt.hist( getInfo(datasetList[1],22,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 22, "Weight"), bins=100,color='r', label= '$\gamma$ ')
-plt.hist( getInfo(datasetList[1],11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], 11, "Weight"), bins=100,color='k', label= '$e^-$ ')
-plt.hist( getInfo(datasetList[1],-11,"PosZmu")/100,histtype='step',range=[-25,25], weights=getInfo(datasetList[1], -11, "Weight"), bins=100,color='y', label= '$e^+$ ')
-plt.hist( getInfo(datasetList[1],2112,"PosZmu")/100,histtype='step', range=[-25,25], weights=getInfo(datasetList[1], 2112, "Weight"),bins=100,color='blue', label= 'n ')
-plt.xlabel('z$_{\mu}$ (m)',fontsize=14)
-plt.ylabel('dN/dz$_{\mu}$',fontsize=14)
-plt.yscale('log')
-#plt.legend(loc= 'upper left')
-plt.ylim((1e2,2e7))
-fig.subplots_adjust(left = 0.05,right = 0.99,wspace = 0.5, hspace = 0.5,top=0.85, bottom= 0.2)
-figname=runName+"PosZmu"
-pl.savefig(figname)
-
-
-# In[38]:
-
-
-#plotVariablePerEachRelevantParticle(datasetList=datasetList, variable="PosZmu", plotTitle="Muon Decay Z Per Particle", xlabel='$z_{\mu \,dec}$ [cm]', ylabel="Arb. Units", nbins=nbinsZ, log=True, figTitle="MuDecPart", ymax=1e8)
+figname=runName+"MuDecZComponents"
+pl.savefig(figname,transparent=False, facecolor='white')
 
 
 # ### Z vs x
 
-# In[39]:
+# In[34]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1695,7 +1496,7 @@ figname=runName+"ZvsX_FLUKA"
 pl.savefig(figname,transparent=False, facecolor='white')
 
 
-# In[40]:
+# In[35]:
 
 
 fig, ax = plt.subplots(nrows=len(datasetList), ncols=1, figsize=(9,len(datasetList)*4))
@@ -1726,7 +1527,7 @@ pl.savefig(figname,transparent=False, facecolor='white')
 
 # ### Theta vs E for BIB electrons
 
-# In[41]:
+# In[36]:
 
 
 if flagAllPlots:
@@ -1757,7 +1558,7 @@ if flagAllPlots:
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[42]:
+# In[37]:
 
 
 if flagAllPlots:
@@ -1766,7 +1567,7 @@ if flagAllPlots:
     figTitle="ZFIvsZBib", range=[[-200, 1000], [-200, 800]], hasBIB=-1)
 
 
-# In[43]:
+# In[38]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1792,7 +1593,7 @@ for i, dataset in enumerate(datasetList):
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[44]:
+# In[39]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1818,7 +1619,7 @@ for i, dataset in enumerate(datasetList):
     pl.savefig(figname,transparent=False, facecolor='white')  
 
 
-# In[45]:
+# In[40]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1844,7 +1645,7 @@ for i, dataset in enumerate(datasetList):
     pl.savefig(figname,transparent=False, facecolor='white')  
 
 
-# In[46]:
+# In[41]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1872,7 +1673,7 @@ for i, dataset in enumerate(datasetList):
 
 # ## Parent Electron Plots
 
-# In[47]:
+# In[42]:
 
 
 if flagReadEle:
@@ -1963,7 +1764,7 @@ else:
     print("Plots regarding parent electrons NOT requested")
 
 
-# In[48]:
+# In[43]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
@@ -1989,7 +1790,7 @@ for i, dataset in enumerate(datasetEleList):
     pl.savefig(figname,transparent=False, facecolor='white')   
 
 
-# In[49]:
+# In[44]:
 
 
 fig, ax = plt.subplots(nrows=1, ncols=len(datasetList)+1, figsize=((len(datasetList)+1)*9,8), sharey=False)
